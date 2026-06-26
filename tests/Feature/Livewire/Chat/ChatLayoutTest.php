@@ -75,6 +75,26 @@ it('announces a new conversation so the sidebar refreshes', function () {
     expect(Conversation::where('user_id', $this->user->id)->count())->toBe(1);
 });
 
+it('resets to a new chat when the open conversation is deleted', function () {
+    $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
+
+    $component = Livewire::test('pages::chat.index', ['agent' => $this->agent])
+        ->set('conversationId', $conversation->id);
+
+    $component->dispatch('conversation-deleted', id: $conversation->id)
+        ->assertSet('conversationId', null);
+});
+
+it('keeps the open conversation when a different one is deleted', function () {
+    $open = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
+    $other = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
+
+    Livewire::test('pages::chat.index', ['agent' => $this->agent])
+        ->set('conversationId', $open->id)
+        ->dispatch('conversation-deleted', id: $other->id)
+        ->assertSet('conversationId', $open->id);
+});
+
 it('shows the edit-agent entry only to admins', function () {
     Livewire::test('pages::chat.index', ['agent' => $this->agent])
         ->assertSee('Editar agente');

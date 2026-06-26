@@ -46,3 +46,59 @@ it('refreshes when a new conversation starts', function () {
         ->dispatch('conversation-started')
         ->assertSee('Nova pergunta');
 });
+
+it('renames a conversation', function () {
+    $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
+        ->create(['title' => 'Título antigo']);
+
+    Livewire::test('recent-conversations')
+        ->call('rename', $conversation->id)
+        ->assertSet('editTitle', 'Título antigo')
+        ->set('editTitle', 'Título novo')
+        ->call('saveRename')
+        ->assertHasNoErrors();
+
+    expect($conversation->fresh()->title)->toBe('Título novo');
+});
+
+it('validates the rename title', function () {
+    $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
+        ->create(['title' => 'Mantém']);
+
+    Livewire::test('recent-conversations')
+        ->call('rename', $conversation->id)
+        ->set('editTitle', '')
+        ->call('saveRename')
+        ->assertHasErrors(['editTitle']);
+
+    expect($conversation->fresh()->title)->toBe('Mantém');
+});
+
+it('deletes a conversation and announces it', function () {
+    $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
+
+    Livewire::test('recent-conversations')
+        ->call('confirmDelete', $conversation->id)
+        ->assertSet('deletingId', $conversation->id)
+        ->call('delete')
+        ->assertDispatched('conversation-deleted', id: $conversation->id);
+
+    expect(Conversation::find($conversation->id))->toBeNull();
+});
+
+it('does not rename or delete another user\'s conversation', function () {
+    $someoneElse = User::factory()->create();
+    $foreign = Conversation::factory()->for($this->organization)->for($this->agent)->for($someoneElse)
+        ->create(['title' => 'Do outro']);
+
+    Livewire::test('recent-conversations')
+        ->call('rename', $foreign->id)
+        ->assertSet('editingId', null);
+
+    Livewire::test('recent-conversations')
+        ->set('deletingId', $foreign->id)
+        ->call('delete');
+
+    expect($foreign->fresh())->not->toBeNull()
+        ->and($foreign->fresh()->title)->toBe('Do outro');
+});

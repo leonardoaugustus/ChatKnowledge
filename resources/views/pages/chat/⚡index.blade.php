@@ -18,6 +18,7 @@ use Laravel\Ai\Streaming\Events\Citation;
 use Laravel\Ai\Streaming\Events\StreamEnd;
 use Laravel\Ai\Streaming\Events\TextDelta;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -74,6 +75,14 @@ new #[Title('Chat')] class extends Component
     {
         $this->reset('conversationId', 'draft', 'progress');
         unset($this->conversation, $this->chatMessages);
+    }
+
+    #[On('conversation-deleted')]
+    public function onConversationDeleted(int $id): void
+    {
+        if ($this->conversationId === $id) {
+            $this->newChat();
+        }
     }
 
     public function selectConversation(int $id): void
