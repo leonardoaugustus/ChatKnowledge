@@ -72,7 +72,7 @@
 ## Phase 2 — Portal SaaS (Organizations, Auth, Members)
 
 ### 2.1 — Organizations & Membership
-- [ ] **2.1.1** `Organization` model (Cashier `Billable`), `organization_user` pivot with `role`, `User` relations (`organizations()`, `currentOrganization()`). Migrations + factories.
+- [x] **2.1.1** `Organization` model (Cashier `Billable`), `organization_user` pivot with `role`, `User` relations (`organizations()`, `currentOrganization()`). Migrations + factories. _(Cashier `Billable` deferred to 2.5, where billing/Stripe lands.)_
   - **Tests:** `tests/Feature/Organization/OrganizationTest.php` — `it creates an organization and attaches the creator as Admin`; `it relates users and organizations many-to-many with a role`; `a user can belong to multiple organizations`.
 - [ ] **2.1.2** Onboarding: on first login/registration create the user's first organization and set it active.
   - **Tests:** `tests/Feature/Organization/OnboardingTest.php` — `it creates a default organization on first registration`; `it sets current_organization_id to the new organization`.
