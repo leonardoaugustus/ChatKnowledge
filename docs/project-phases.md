@@ -133,7 +133,7 @@
 ## Phase 5 — Curation (human-in-the-loop)
 
 ### 5.1 — Curation Queue
-- [ ] **5.1.1** Livewire page listing `knowledge_items` with `CurationStatus::Pending` for the active organization/agent.
+- [x] **5.1.1** Livewire page listing `knowledge_items` with `CurationStatus::Pending` for the active organization/agent.
   - **Tests:** `tests/Feature/Livewire/Curation/QueueTest.php` — `it lists only pending items for the active organization`; `it groups items by KnowledgeType`; `items from another organization are not visible`.
 
 ### 5.2 — Curation Actions
