@@ -14,6 +14,7 @@ Route::prefix('{current_organization}')
     ->group(function () {
         Route::livewire('dashboard', 'pages::dashboard')->name('dashboard');
 
+        Route::livewire('agents', 'pages::agents.index')->name('agents.index');
         Route::livewire('agents/{agent}/edit', 'pages::agent.edit')->name('agents.edit');
         Route::livewire('agents/{agent}/training', 'pages::training.upload')->name('training.upload');
         Route::livewire('agents/{agent}/curation', 'pages::curation.queue')->name('curation.queue');

@@ -92,6 +92,8 @@ new #[Title('Tools')] class extends Component
         </x-slot:actions>
     </x-page-header>
 
+    <x-agent-nav :agent="$agent" />
+
     <div class="mt-6 flex flex-col gap-2">
         @forelse ($this->tools as $tool)
             <div class="flex items-center justify-between rounded-card border border-zinc-200 p-4 dark:border-zinc-700" wire:key="tool-{{ $tool->id }}">

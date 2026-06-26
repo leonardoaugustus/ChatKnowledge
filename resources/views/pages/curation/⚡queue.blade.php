@@ -162,6 +162,8 @@ new #[Title('Curadoria')] class extends Component
         </x-slot:actions>
     </x-page-header>
 
+    <x-agent-nav :agent="$agent" />
+
     @forelse ($this->groupedItems as $typeValue => $items)
         @php($type = App\Enums\KnowledgeType::from($typeValue))
         <div class="mt-6" wire:key="group-{{ $typeValue }}">

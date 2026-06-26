@@ -175,6 +175,8 @@ new #[Title('Chat')] class extends Component
 <section class="flex h-full w-full flex-col">
     <x-page-header :title="__('Chat')" :description="$agent->name" />
 
+    <x-agent-nav :agent="$agent" />
+
     <div class="mt-6 flex-1 space-y-4 overflow-y-auto" data-test="chat-messages">
         @foreach ($this->chatMessages as $message)
             <div @class([

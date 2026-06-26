@@ -19,29 +19,17 @@
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
-                @php
-                    $workspaceNav = [
-                        ['route' => 'agents.index', 'icon' => 'cpu-chip', 'label' => 'Agentes'],
-                        ['route' => 'training.index', 'icon' => 'document-arrow-up', 'label' => 'Treinamento'],
-                        ['route' => 'curation.index', 'icon' => 'clipboard-document-check', 'label' => 'Curadoria'],
-                        ['route' => 'chat.index', 'icon' => 'chat-bubble-left-right', 'label' => 'Chat'],
-                        ['route' => 'tools.index', 'icon' => 'wrench-screwdriver', 'label' => 'Tools'],
-                    ];
-                @endphp
-
                 <flux:sidebar.group :heading="__('Workspace')" class="grid">
-                    @foreach ($workspaceNav as $item)
-                        @if (Route::has($item['route']))
-                            <flux:sidebar.item :icon="$item['icon']" :href="route($item['route'])" :current="request()->routeIs($item['route'].'*')" wire:navigate>
-                                {{ __($item['label']) }}
-                            </flux:sidebar.item>
-                        @else
-                            <flux:sidebar.item :icon="$item['icon']" href="#" class="pointer-events-none opacity-50" aria-disabled="true">
-                                {{ __($item['label']) }}
-                                <flux:badge size="sm" color="zinc" class="ms-auto in-data-flux-sidebar-collapsed-desktop:hidden">{{ __('Em breve') }}</flux:badge>
-                            </flux:sidebar.item>
-                        @endif
-                    @endforeach
+                    {{-- Training, curation, chat and tools are per-agent and are
+                         reached from an agent's tab nav (see x-agent-nav). --}}
+                    <flux:sidebar.item
+                        icon="cpu-chip"
+                        :href="route('agents.index')"
+                        :current="request()->routeIs('agents.*', 'training.*', 'curation.*', 'chat.*', 'tools.*')"
+                        wire:navigate
+                    >
+                        {{ __('Agentes') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

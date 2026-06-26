@@ -61,6 +61,8 @@ new #[Title('Personality Builder')] class extends Component
         </x-slot:actions>
     </x-page-header>
 
+    <x-agent-nav :agent="$agent" />
+
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <form wire:submit="save" class="flex flex-col gap-5">
             <flux:input wire:model="form.name" :label="__('Nome do agente')" required data-test="agent-name" />

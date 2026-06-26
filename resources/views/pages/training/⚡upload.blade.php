@@ -52,6 +52,8 @@ new #[Title('Treinamento')] class extends Component
 <section class="w-full">
     <x-page-header :title="__('Treinamento')" :description="$agent->name" />
 
+    <x-agent-nav :agent="$agent" />
+
     <form wire:submit="save" class="mt-6 flex flex-col gap-4" enctype="multipart/form-data">
         <flux:input
             type="file"
