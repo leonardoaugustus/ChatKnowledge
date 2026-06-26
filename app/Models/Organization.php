@@ -97,6 +97,16 @@ class Organization extends Model
     }
 
     /**
+     * Get all agents belonging to this organization.
+     *
+     * @return HasMany<Agent, $this>
+     */
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

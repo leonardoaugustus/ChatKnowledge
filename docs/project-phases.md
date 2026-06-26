@@ -105,7 +105,7 @@
 ## Phase 3 — Agents & Personality Builder
 
 ### 3.1 — Agent Model & Config Files
-- [ ] **3.1.1** `Agent` model (`BelongsToOrganization`, `AgentStatus`, `vector_store_id`) + `agent_configs` storing the OpenClaw-style markdown sections (`identity`, `soul`, `user`, `bootstrap`, `heartbeat`, `tools`) as DB fields rendered as Markdown. Add a `compiled_system_prompt` field, generated automatically from the composition of all sections (`identity`, `soul`, `user`, `bootstrap`, `heartbeat`, `tools`). Its purpose is to ease debugging, auditing, and visualizing the final prompt sent to the model.
+- [x] **3.1.1** `Agent` model (`BelongsToOrganization`, `AgentStatus`, `vector_store_id`) + `agent_configs` storing the OpenClaw-style markdown sections (`identity`, `soul`, `user`, `bootstrap`, `heartbeat`, `tools`) as DB fields rendered as Markdown. Add a `compiled_system_prompt` field, generated automatically from the composition of all sections (`identity`, `soul`, `user`, `bootstrap`, `heartbeat`, `tools`). Its purpose is to ease debugging, auditing, and visualizing the final prompt sent to the model.
   - **Tests:** `tests/Feature/Agent/AgentTest.php` — `it creates an agent scoped to the active organization`; `it stores all personality sections`; `agents from another organization are not visible`; `it caps agents per organization if a limit is set`; `it recompiles compiled_system_prompt when any section changes`; `compiled_system_prompt matches the composition of the sections`.
 
 ### 3.2 — Personality Builder UI
