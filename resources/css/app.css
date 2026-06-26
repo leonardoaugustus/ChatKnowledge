@@ -9,8 +9,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+    /* ── Typography ─────────────────────────────────────────────
+       Sans for the UI, mono for compiled prompts / markdown / code. */
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: ui-monospace, 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, Consolas, monospace;
 
+    --text-2xs: 0.6875rem;
+    --text-2xs--line-height: 1rem;
+
+    /* ── Neutral ramp (zinc → warm-neutral, from the starter kit) ── */
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
     --color-zinc-200: #e5e5e5;
@@ -23,16 +30,40 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* ── Brand palette ──────────────────────────────────────────
+       Indigo-anchored to match the Admin role + an "intelligent"
+       feel. Status colors stay on Tailwind's defaults (green/amber/
+       red/blue/cyan/lime) so the enum color() tokens keep working. */
+    --color-brand-50: #eef2ff;
+    --color-brand-100: #e0e7ff;
+    --color-brand-200: #c7d2fe;
+    --color-brand-300: #a5b4fc;
+    --color-brand-400: #818cf8;
+    --color-brand-500: #6366f1;
+    --color-brand-600: #4f46e5;
+    --color-brand-700: #4338ca;
+    --color-brand-800: #3730a3;
+    --color-brand-900: #312e81;
+    --color-brand-950: #1e1b4b;
+
+    /* Flux drives buttons / rings / focus from the accent tokens. */
+    --color-accent: var(--color-brand-600);
+    --color-accent-content: var(--color-brand-700);
     --color-accent-foreground: var(--color-white);
+
+    /* ── Spacing & radius ───────────────────────────────────────
+       Tailwind's 0.25rem spacing base is kept; these add semantic
+       layout knobs reused across the app shell. */
+    --radius-card: 0.75rem;
+    --spacing-prose: 65ch;
+    --spacing-shell: 80rem;
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: var(--color-brand-500);
+        --color-accent-content: var(--color-brand-300);
+        --color-accent-foreground: var(--color-zinc-950);
     }
 }
 
