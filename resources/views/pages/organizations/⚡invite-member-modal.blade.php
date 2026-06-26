@@ -17,7 +17,7 @@ new class extends Component {
 
     public string $inviteEmail = '';
 
-    public string $inviteRole = 'member';
+    public string $inviteRole = Role::Colaborador->value;
 
     public function mount(Organization $organization): void
     {

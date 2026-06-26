@@ -53,12 +53,12 @@ class Organization extends Model
     }
 
     /**
-     * Get the organization owner.
+     * Get the organization's primary admin (the gestor).
      */
     public function owner(): ?Model
     {
         return $this->members()
-            ->wherePivot('role', Role::Owner->value)
+            ->wherePivot('role', Role::Admin->value)
             ->first();
     }
 

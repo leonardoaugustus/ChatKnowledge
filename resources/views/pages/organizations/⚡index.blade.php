@@ -2,6 +2,7 @@
 
 use App\Actions\Organizations\CreateOrganization;
 use App\Data\UserOrganization;
+use App\Enums\Role;
 use App\Models\Organization;
 use App\Rules\OrganizationName;
 use Flux\Flux;
@@ -98,7 +99,7 @@ new #[Title('Organizations')] class extends Component {
                     </div>
 
                     <div class="flex items-center gap-1">
-                        @if (! $organization->isPersonal && $organization->role !== 'owner')
+                        @if (! $organization->isPersonal && $organization->role !== Role::Admin->value)
                             <flux:modal.trigger :name="'leave-organization-'.$organization->id">
                                 <flux:tooltip :content="__('Leave organization')">
                                     <flux:button
@@ -113,20 +114,20 @@ new #[Title('Organizations')] class extends Component {
                             </flux:modal.trigger>
                         @endif
 
-                        <flux:tooltip :content="$organization->role === 'member' ? __('View organization') : __('Edit organization')">
+                        <flux:tooltip :content="$organization->role === Role::Colaborador->value ? __('View organization') : __('Edit organization')">
                             <flux:button
                                 variant="ghost"
                                 size="sm"
-                                :icon="$organization->role === 'member' ? 'eye' : 'pencil'"
+                                :icon="$organization->role === Role::Colaborador->value ? 'eye' : 'pencil'"
                                 :href="route('organizations.edit', $organization->slug)"
                                 wire:navigate
-                                :data-test="$organization->role === 'member' ? 'organization-view-button' : 'organization-edit-button'"
+                                :data-test="$organization->role === Role::Colaborador->value ? 'organization-view-button' : 'organization-edit-button'"
                             />
                         </flux:tooltip>
                     </div>
                 </div>
 
-                @if (! $organization->isPersonal && $organization->role !== 'owner')
+                @if (! $organization->isPersonal && $organization->role !== Role::Admin->value)
                     <flux:modal :name="'leave-organization-'.$organization->id" focusable class="max-w-lg">
                         <form wire:submit="leaveOrganization({{ $organization->id }})" class="space-y-6">
                             <div>

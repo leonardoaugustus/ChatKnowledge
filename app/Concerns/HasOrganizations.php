@@ -43,7 +43,7 @@ trait HasOrganizations
             'id',
             'id',
             'organization_id',
-        )->where('organization_user.role', Role::Owner->value);
+        )->where('organization_user.role', Role::Admin->value);
     }
 
     /**
@@ -110,11 +110,11 @@ trait HasOrganizations
     }
 
     /**
-     * Determine if the user is the owner of the given organization.
+     * Determine if the user is an admin (gestor) of the given organization.
      */
     public function ownsOrganization(Organization $organization): bool
     {
-        return $this->organizationRole($organization) === Role::Owner;
+        return $this->organizationRole($organization) === Role::Admin;
     }
 
     /**

@@ -192,7 +192,7 @@ new class extends Component
                             </div>
 
                             <div class="flex items-center gap-2">
-                                @if ($member['role'] !== 'owner' && $this->permissions->canUpdateMember)
+                                @if ($member['role'] !== Role::Admin->value && $this->permissions->canUpdateMember)
                                     <flux:dropdown position="bottom" align="end">
                                         <flux:button variant="outline" size="sm" icon:trailing="chevron-down" data-test="member-role-trigger">
                                             {{ $member['role_label'] }}
@@ -214,7 +214,7 @@ new class extends Component
                                     <flux:badge color="zinc">{{ $member['role_label'] }}</flux:badge>
                                 @endif
 
-                                @if ($member['role'] !== 'owner' && $this->permissions->canRemoveMember)
+                                @if ($member['role'] !== Role::Admin->value && $this->permissions->canRemoveMember)
                                     <flux:modal.trigger name="remove-member-{{ $member['id'] }}">
                                         <flux:tooltip :content="__('Remove member')">
                                             <flux:button
@@ -229,7 +229,7 @@ new class extends Component
                             </div>
                         </div>
 
-                        @if ($member['role'] !== 'owner' && $this->permissions->canRemoveMember)
+                        @if ($member['role'] !== Role::Admin->value && $this->permissions->canRemoveMember)
                             <livewire:pages::organizations.remove-member-modal
                                 :organization="$organizationModel"
                                 :member-id="$member['id']"

@@ -49,7 +49,7 @@ class UserFactory extends Factory
             ]);
 
             $organization->members()->attach($user, [
-                'role' => Role::Owner->value,
+                'role' => Role::Admin->value,
             ]);
 
             $user->switchOrganization($organization);

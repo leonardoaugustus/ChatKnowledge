@@ -23,7 +23,7 @@ class OrganizationInvitationFactory extends Factory
         return [
             'organization_id' => Organization::factory(),
             'email' => fake()->unique()->safeEmail(),
-            'role' => Role::Member,
+            'role' => Role::Colaborador,
             'invited_by' => User::factory(),
             'expires_at' => null,
             'accepted_at' => null,

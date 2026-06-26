@@ -43,9 +43,9 @@
 
 - [x] **0.1** Project bootstrapped from the official Livewire starter kit (Laravel 13 + Livewire 4 + Flux UI free + Fortify), with **Teams enabled** and **Laravel Boost** installed. Rename the Teams concept to **Organization** throughout.
   - **Tests:** _none — scaffolding only._
-- [ ] **0.2** Configure services: `config/services.php` blocks for `openai` (`api_key`) and `stripe`. Add `.env.example` entries. Postgres + Redis + Horizon configured.
+- [x] **0.2** Configure services: `config/services.php` blocks for `openai` (`api_key`) and `stripe`. Add `.env.example` entries. Postgres + Redis + Horizon configured.
   - **Tests:** _none — configuration only._
-- [ ] **0.3** Define domain enums in `app/Enums` (all `final`): `Role` (`Admin`, `Colaborador`), `AgentStatus` (`Draft`, `Published`), `DocumentStatus` (`Uploaded`, `Processing`, `Extracted`, `PendingCuration`, `Approved`, `Publishing`, `Published`, `Failed`), `CurationStatus` (`Pending`, `Approved`, `Rejected`), `KnowledgeType` (`Procedure`, `Rule`, `Policy`, `Faq`, `IdealAnswer`, `Exception`, `Glossary`, `Flow`, `OperationalStep`).
+- [x] **0.3** Define domain enums in `app/Enums` (all `final`): `Role` (`Admin`, `Colaborador`), `AgentStatus` (`Draft`, `Published`), `DocumentStatus` (`Uploaded`, `Processing`, `Extracted`, `PendingCuration`, `Approved`, `Publishing`, `Published`, `Failed`), `CurationStatus` (`Pending`, `Approved`, `Rejected`), `KnowledgeType` (`Procedure`, `Rule`, `Policy`, `Faq`, `IdealAnswer`, `Exception`, `Glossary`, `Flow`, `OperationalStep`).
   - **Tests:** `tests/Unit/Enums/EnumsTest.php` — `it exposes label/color tokens for each case`; `it maps extractor output strings to KnowledgeType`.
 - [ ] **0.4** `App\Support\ActiveOrganization` (scoped singleton) + `App\Models\Concerns\BelongsToOrganization` trait (global scope + auto-fill + `organization()` relation).
   - **Tests:** `tests/Unit/Support/ActiveOrganizationTest.php` — `it resolves the active organization id from the user`; `it returns null when no user/organization`.

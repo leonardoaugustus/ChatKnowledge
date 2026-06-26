@@ -4,16 +4,29 @@ namespace App\Enums;
 
 enum Role: string
 {
-    case Owner = 'owner';
     case Admin = 'admin';
-    case Member = 'member';
+    case Colaborador = 'colaborador';
 
     /**
      * Get the display label for the role.
      */
     public function label(): string
     {
-        return ucfirst($this->value);
+        return match ($this) {
+            self::Admin => 'Admin',
+            self::Colaborador => 'Colaborador',
+        };
+    }
+
+    /**
+     * Get the Flux color token for the role.
+     */
+    public function color(): string
+    {
+        return match ($this) {
+            self::Admin => 'indigo',
+            self::Colaborador => 'zinc',
+        };
     }
 
     /**
@@ -24,13 +37,8 @@ enum Role: string
     public function permissions(): array
     {
         return match ($this) {
-            self::Owner => OrganizationPermission::cases(),
-            self::Admin => [
-                OrganizationPermission::UpdateOrganization,
-                OrganizationPermission::CreateInvitation,
-                OrganizationPermission::CancelInvitation,
-            ],
-            self::Member => [],
+            self::Admin => OrganizationPermission::cases(),
+            self::Colaborador => [],
         };
     }
 
@@ -49,9 +57,8 @@ enum Role: string
     public function level(): int
     {
         return match ($this) {
-            self::Owner => 3,
             self::Admin => 2,
-            self::Member => 1,
+            self::Colaborador => 1,
         };
     }
 
@@ -64,14 +71,13 @@ enum Role: string
     }
 
     /**
-     * Get the roles that can be assigned to organization members (excludes Owner).
+     * Get the roles that can be assigned to organization members.
      *
      * @return array<array{value: string, label: string}>
      */
     public static function assignable(): array
     {
         return collect(self::cases())
-            ->filter(fn (self $role) => $role !== self::Owner)
             ->map(fn (self $role) => ['value' => $role->value, 'label' => $role->label()])
             ->values()
             ->toArray();

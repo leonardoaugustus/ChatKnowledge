@@ -54,7 +54,7 @@ test('organization slug uses next available suffix', function () {
 test('organization edit page can be rendered', function () {
     $user = User::factory()->create();
     $organization = Organization::factory()->create();
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $response = $this
         ->actingAs($user)
@@ -67,7 +67,7 @@ test('organizations can be updated by owners', function () {
     $user = User::factory()->create();
     $organization = Organization::factory()->create(['name' => 'Original Name']);
 
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $this->actingAs($user);
 
@@ -87,8 +87,8 @@ test('organizations cannot be updated by members', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($member);
 
@@ -102,7 +102,7 @@ test('organizations can be deleted by owners', function () {
     $user = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $this->actingAs($user);
 
@@ -120,7 +120,7 @@ test('organization deletion requires name confirmation', function () {
     $user = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $this->actingAs($user);
 
@@ -139,13 +139,13 @@ test('deleting current organization switches to alphabetically first remaining o
     $user = User::factory()->create(['name' => 'Mike']);
 
     $zuluOrganization = Organization::factory()->create(['name' => 'Zulu Organization']);
-    $zuluOrganization->members()->attach($user, ['role' => Role::Owner->value]);
+    $zuluOrganization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $alphaOrganization = Organization::factory()->create(['name' => 'Alpha Organization']);
-    $alphaOrganization->members()->attach($user, ['role' => Role::Owner->value]);
+    $alphaOrganization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $betaOrganization = Organization::factory()->create(['name' => 'Beta Organization']);
-    $betaOrganization->members()->attach($user, ['role' => Role::Owner->value]);
+    $betaOrganization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $user->update(['current_organization_id' => $zuluOrganization->id]);
 
@@ -167,7 +167,7 @@ test('deleting current organization falls back to personal organization when alp
     $user = User::factory()->create();
     $personalOrganization = $user->personalOrganization();
     $organization = Organization::factory()->create(['name' => 'Zulu Organization']);
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $user->update(['current_organization_id' => $organization->id]);
 
@@ -189,7 +189,7 @@ test('deleting non current organization leaves current organization unchanged', 
     $user = User::factory()->create();
     $personalOrganization = $user->personalOrganization();
     $organization = Organization::factory()->create();
-    $organization->members()->attach($user, ['role' => Role::Owner->value]);
+    $organization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $user->update(['current_organization_id' => $personalOrganization->id]);
 
@@ -212,8 +212,8 @@ test('members can leave non personal organizations', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($member);
 
@@ -229,14 +229,14 @@ test('leaving current organization switches to alphabetically first remaining or
     $member = User::factory()->create(['name' => 'Mike']);
 
     $zuluOrganization = Organization::factory()->create(['name' => 'Zulu Organization']);
-    $zuluOrganization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $zuluOrganization->members()->attach($member, ['role' => Role::Member->value]);
+    $zuluOrganization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $zuluOrganization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $alphaOrganization = Organization::factory()->create(['name' => 'Alpha Organization']);
-    $alphaOrganization->members()->attach($member, ['role' => Role::Member->value]);
+    $alphaOrganization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $betaOrganization = Organization::factory()->create(['name' => 'Beta Organization']);
-    $betaOrganization->members()->attach($member, ['role' => Role::Member->value]);
+    $betaOrganization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $member->update(['current_organization_id' => $zuluOrganization->id]);
 
@@ -267,7 +267,7 @@ test('organization owners cannot leave their organization', function () {
     $owner = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $this->actingAs($owner);
 
@@ -294,8 +294,8 @@ test('leave control is only rendered for leaveable organizations', function () {
     $member = User::factory()->create();
     $leaveableOrganization = Organization::factory()->create();
 
-    $leaveableOrganization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $leaveableOrganization->members()->attach($member, ['role' => Role::Member->value]);
+    $leaveableOrganization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $leaveableOrganization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($member);
 
@@ -307,7 +307,7 @@ test('leave control is not rendered for personal or owned organizations', functi
     $user = User::factory()->create();
     $ownedOrganization = Organization::factory()->create();
 
-    $ownedOrganization->members()->attach($user, ['role' => Role::Owner->value]);
+    $ownedOrganization->members()->attach($user, ['role' => Role::Admin->value]);
 
     $this->actingAs($user);
 
@@ -320,8 +320,8 @@ test('deleting organization switches other affected users to their personal orga
     $member = User::factory()->create();
 
     $organization = Organization::factory()->create();
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $owner->update(['current_organization_id' => $organization->id]);
     $member->update(['current_organization_id' => $organization->id]);
@@ -359,8 +359,8 @@ test('organizations cannot be deleted by non owners', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($member);
 

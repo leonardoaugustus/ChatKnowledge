@@ -13,20 +13,20 @@ test('organization invitations can be created', function () {
     $owner = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $this->actingAs($owner);
 
     Livewire::test('pages::organizations.invite-member-modal', ['organization' => $organization])
         ->set('inviteEmail', 'invited@example.com')
-        ->set('inviteRole', Role::Member->value)
+        ->set('inviteRole', Role::Colaborador->value)
         ->call('createInvitation')
         ->assertHasNoErrors();
 
     $this->assertDatabaseHas('organization_invitations', [
         'organization_id' => $organization->id,
         'email' => 'invited@example.com',
-        'role' => Role::Member->value,
+        'role' => Role::Colaborador->value,
     ]);
 });
 
@@ -35,14 +35,14 @@ test('organization invitations cannot be created by members', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($member);
 
     Livewire::test('pages::organizations.invite-member-modal', ['organization' => $organization])
         ->set('inviteEmail', 'invited@example.com')
-        ->set('inviteRole', Role::Member->value)
+        ->set('inviteRole', Role::Colaborador->value)
         ->call('createInvitation')
         ->assertForbidden();
 });
@@ -51,7 +51,7 @@ test('organization invitations can be cancelled by owner', function () {
     $owner = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $invitation = OrganizationInvitation::factory()->create([
         'organization_id' => $organization->id,
@@ -75,12 +75,12 @@ test('organization invitations can be accepted', function () {
     $invitedUser = User::factory()->create(['email' => 'invited@example.com']);
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $invitation = OrganizationInvitation::factory()->create([
         'organization_id' => $organization->id,
         'email' => 'invited@example.com',
-        'role' => Role::Member,
+        'role' => Role::Colaborador,
         'invited_by' => $owner->id,
     ]);
 
@@ -114,7 +114,7 @@ test('pending invitations excludes expired invitations without deleting them', f
     $invitedUser = User::factory()->create(['email' => 'invited@example.com']);
     $organization = Organization::factory()->create(['name' => 'Expired Organization']);
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $invitation = OrganizationInvitation::factory()->expired()->create([
         'organization_id' => $organization->id,
@@ -137,7 +137,7 @@ test('organization invitations cannot be accepted by user that wasnt invited', f
     $uninvitedUser = User::factory()->create(['email' => 'uninvited@example.com']);
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $invitation = OrganizationInvitation::factory()->create([
         'organization_id' => $organization->id,
@@ -161,7 +161,7 @@ test('expired invitations cannot be accepted', function () {
     $invitedUser = User::factory()->create(['email' => 'invited@example.com']);
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
 
     $invitation = OrganizationInvitation::factory()->expired()->create([
         'organization_id' => $organization->id,

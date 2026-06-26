@@ -10,8 +10,8 @@ test('organization member role can be updated by owner', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($owner);
 
@@ -22,17 +22,17 @@ test('organization member role can be updated by owner', function () {
     expect($organization->members()->where('user_id', $member->id)->first()->pivot->role->value)->toEqual(Role::Admin->value);
 });
 
-test('organization member role cannot be updated by non owner', function () {
-    $owner = User::factory()->create();
+test('organization member role cannot be updated by colaboradores', function () {
     $admin = User::factory()->create();
+    $colaborador = User::factory()->create();
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
     $organization->members()->attach($admin, ['role' => Role::Admin->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($colaborador, ['role' => Role::Colaborador->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
-    $this->actingAs($admin);
+    $this->actingAs($colaborador);
 
     Livewire::test('pages::organizations.edit', ['organization' => $organization])
         ->call('updateMember', $member->id, Role::Admin->value)
@@ -44,8 +44,8 @@ test('organization member can be removed by owner', function () {
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $this->actingAs($owner);
 
@@ -57,17 +57,17 @@ test('organization member can be removed by owner', function () {
     expect($member->fresh()->belongsToOrganization($organization))->toBeFalse();
 });
 
-test('organization member cannot be removed by non owners', function () {
-    $owner = User::factory()->create();
+test('organization member cannot be removed by colaboradores', function () {
     $admin = User::factory()->create();
+    $colaborador = User::factory()->create();
     $member = User::factory()->create();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
     $organization->members()->attach($admin, ['role' => Role::Admin->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($colaborador, ['role' => Role::Colaborador->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
-    $this->actingAs($admin);
+    $this->actingAs($colaborador);
 
     Livewire::test('pages::organizations.remove-member-modal', ['organization' => $organization])
         ->set('memberId', $member->id)
@@ -81,8 +81,8 @@ test('removed members current organization is set to personal organization', fun
     $personalOrganization = $member->personalOrganization();
     $organization = Organization::factory()->create();
 
-    $organization->members()->attach($owner, ['role' => Role::Owner->value]);
-    $organization->members()->attach($member, ['role' => Role::Member->value]);
+    $organization->members()->attach($owner, ['role' => Role::Admin->value]);
+    $organization->members()->attach($member, ['role' => Role::Colaborador->value]);
 
     $member->update(['current_organization_id' => $organization->id]);
 

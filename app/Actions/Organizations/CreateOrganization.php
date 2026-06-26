@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class CreateOrganization
 {
     /**
-     * Create a new organization and add the user as owner.
+     * Create a new organization and add the user as its admin.
      */
     public function handle(User $user, string $name, bool $isPersonal = false): Organization
     {
@@ -22,7 +22,7 @@ class CreateOrganization
 
             $membership = $organization->memberships()->create([
                 'user_id' => $user->id,
-                'role' => Role::Owner,
+                'role' => Role::Admin,
             ]);
 
             $user->switchOrganization($organization);
