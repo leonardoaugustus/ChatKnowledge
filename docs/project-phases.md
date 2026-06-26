@@ -64,7 +64,7 @@
 - [x] **1.1** Design tokens in `resources/css/app.css` (palette, typography, spacing). Tailwind 4 `@theme` extension.
 - [x] **1.2** Base layouts: `layouts/guest` (auth screens) and `layouts/app` (authenticated, with sidebar/nav, organization switcher, plan-usage indicator).
 - [x] **1.3** Shared UI partials built on Flux: page header, empty states, toast/flash via `@session`, confirmation modal, status badges (document/curation/agent), simple bar widget (Tailwind only — no chart library).
-- [ ] **1.4** Organization switcher component in the nav (lists the user's organizations, switches `current_organization_id`).
+- [x] **1.4** Organization switcher component in the nav (lists the user's organizations, switches `current_organization_id`).
 - [ ] **1.5** Static `/_dev/ui-kit` route (local env only) rendering every partial.
 
 ---
