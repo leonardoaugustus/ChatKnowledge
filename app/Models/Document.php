@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -43,6 +44,16 @@ class Document extends Model
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
+    }
+
+    /**
+     * Get the knowledge items extracted from this document.
+     *
+     * @return HasMany<KnowledgeItem, $this>
+     */
+    public function knowledgeItems(): HasMany
+    {
+        return $this->hasMany(KnowledgeItem::class, 'source_document_id');
     }
 
     /**

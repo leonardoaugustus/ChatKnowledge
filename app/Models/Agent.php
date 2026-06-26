@@ -55,6 +55,16 @@ class Agent extends Model
     }
 
     /**
+     * Get the knowledge items extracted/curated for the agent.
+     *
+     * @return HasMany<KnowledgeItem, $this>
+     */
+    public function knowledgeItems(): HasMany
+    {
+        return $this->hasMany(KnowledgeItem::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

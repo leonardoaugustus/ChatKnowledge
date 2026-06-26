@@ -3,6 +3,7 @@
 namespace App\Actions\Training;
 
 use App\Enums\DocumentStatus;
+use App\Jobs\ExtractKnowledgeFromDocument;
 use App\Models\Agent;
 use App\Models\Document;
 use Illuminate\Http\UploadedFile;
@@ -17,7 +18,7 @@ class StoreDocument
     {
         $path = $file->store('documents/'.$agent->id, $disk);
 
-        return Document::create([
+        $document = Document::create([
             'organization_id' => $agent->organization_id,
             'agent_id' => $agent->id,
             'name' => $file->getClientOriginalName(),
@@ -28,5 +29,10 @@ class StoreDocument
             'size' => $file->getSize(),
             'version' => 1,
         ]);
+
+        // Extraction runs asynchronously (Phase 4.2).
+        ExtractKnowledgeFromDocument::dispatch($document);
+
+        return $document;
     }
 }

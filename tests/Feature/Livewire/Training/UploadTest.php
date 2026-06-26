@@ -6,11 +6,13 @@ use App\Models\Document;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 beforeEach(function () {
     Storage::fake('local');
+    Queue::fake();
 
     $this->user = User::factory()->create();
     $this->organization = $this->user->currentOrganization;
