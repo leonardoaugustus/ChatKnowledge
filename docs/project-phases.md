@@ -191,7 +191,7 @@
 ## Phase 10 — Dashboard
 
 ### 10.1 — Overview
-- [ ] **10.1.1** Dashboard for the active organization: counts of agents, documents, processings, pending curations, questions, unanswered questions, and plan usage. Adds indicators for: items pending publication, published documents, plan consumption, usage per agent, and processing failures. Simple bar widgets (Tailwind, no chart library).
+- [x] **10.1.1** Dashboard for the active organization: counts of agents, documents, processings, pending curations, questions, unanswered questions, and plan usage. Adds indicators for: items pending publication, published documents, plan consumption, usage per agent, and processing failures. Simple bar widgets (Tailwind, no chart library).
   - **Tests:** `tests/Feature/Livewire/Dashboard/DashboardTest.php` — `it shows counts scoped to the active organization`; `it shows pending curation and unanswered counts`; `it shows plan usage`; `it shows items pending publication and published documents`; `it shows usage per agent`; `it shows processing failures`; `it never aggregates across organizations`.
 
 ---

@@ -12,7 +12,7 @@ if (app()->environment('local')) {
 Route::prefix('{current_organization}')
     ->middleware(['auth', 'verified', EnsureOrganizationMembership::class])
     ->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::livewire('dashboard', 'pages::dashboard')->name('dashboard');
 
         Route::livewire('agents/{agent}/edit', 'pages::agent.edit')->name('agents.edit');
         Route::livewire('agents/{agent}/training', 'pages::training.upload')->name('training.upload');

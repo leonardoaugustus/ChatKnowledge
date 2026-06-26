@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\UsageType;
 use App\Models\Concerns\BelongsToOrganization;
+use Database\Factories\UsageRecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -21,7 +23,8 @@ use Illuminate\Support\Carbon;
 #[Fillable(['organization_id', 'agent_id', 'type', 'quantity'])]
 class UsageRecord extends Model
 {
-    use BelongsToOrganization;
+    /** @use HasFactory<UsageRecordFactory> */
+    use BelongsToOrganization, HasFactory;
 
     // The agent() relationship is added in Phase 3, once the Agent model exists.
 
