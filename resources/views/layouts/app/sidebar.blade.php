@@ -40,6 +40,12 @@
                     >
                         {{ __('Agentes') }}
                     </flux:sidebar.item>
+
+                    @if (request()->routeIs('chat.*'))
+                        <div class="mt-1 in-data-flux-sidebar-collapsed-desktop:hidden">
+                            <livewire:recent-conversations />
+                        </div>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

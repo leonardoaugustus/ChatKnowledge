@@ -20,19 +20,6 @@ beforeEach(function () {
     ]);
 });
 
-it('shows the conversation history for the current user', function () {
-    $mine = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
-        ->create(['title' => 'Minha conversa']);
-
-    $someoneElse = User::factory()->create();
-    Conversation::factory()->for($this->organization)->for($this->agent)->for($someoneElse)
-        ->create(['title' => 'Conversa de outro']);
-
-    Livewire::test('pages::chat.index', ['agent' => $this->agent])
-        ->assertSee('Minha conversa')
-        ->assertDontSee('Conversa de outro');
-});
-
 it('starts a new conversation with the new chat action', function () {
     $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
 
@@ -55,6 +42,18 @@ it('loads a selected conversation', function () {
         ->assertSee('Resposta anterior.');
 });
 
+it('preselects a conversation from the c query parameter', function () {
+    $conversation = Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)->create();
+    Message::factory()->for($this->organization)->for($conversation)->create([
+        'role' => MessageRole::Assistant,
+        'content' => 'Mensagem preservada.',
+    ]);
+
+    $this->get(route('chat.show', ['agent' => $this->agent, 'c' => $conversation->id]))
+        ->assertOk()
+        ->assertSee('Mensagem preservada.');
+});
+
 it('does not load another user\'s conversation', function () {
     $someoneElse = User::factory()->create();
     $foreign = Conversation::factory()->for($this->organization)->for($this->agent)->for($someoneElse)->create();
@@ -64,14 +63,16 @@ it('does not load another user\'s conversation', function () {
         ->assertSet('conversationId', null);
 });
 
-it('persists the new conversation in history after sending', function () {
+it('announces a new conversation so the sidebar refreshes', function () {
     ChatAgent::fake(['Olá!']);
 
     Livewire::test('pages::chat.index', ['agent' => $this->agent])
         ->set('draft', 'Primeira pergunta sobre o produto')
         ->call('send')
         ->assertHasNoErrors()
-        ->assertSee('Primeira pergunta sobre o produto'); // conversation title in history
+        ->assertDispatched('conversation-started');
+
+    expect(Conversation::where('user_id', $this->user->id)->count())->toBe(1);
 });
 
 it('shows the edit-agent entry only to admins', function () {

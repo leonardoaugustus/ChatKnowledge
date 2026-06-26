@@ -39,6 +39,10 @@ new #[Title('Chat')] class extends Component
         $this->confirmAgentBelongsToActiveOrganization($agent);
 
         $this->agent = $agent;
+
+        if ($id = request()->integer('c')) {
+            $this->selectConversation($id);
+        }
     }
 
     protected function confirmAgentBelongsToActiveOrganization(Agent $agent): void
@@ -49,20 +53,6 @@ new #[Title('Chat')] class extends Component
     public function canManageAgent(): bool
     {
         return Gate::allows('update', $this->agent);
-    }
-
-    /**
-     * The current user's conversations with this agent (most recent first).
-     *
-     * @return Collection<int, Conversation>
-     */
-    #[Computed]
-    public function conversations(): Collection
-    {
-        return Conversation::where('agent_id', $this->agent->id)
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->get();
     }
 
     #[Computed]
@@ -104,6 +94,8 @@ new #[Title('Chat')] class extends Component
     {
         $this->validate();
         $this->confirmAgentBelongsToActiveOrganization($this->agent);
+
+        $isNewConversation = $this->conversation === null;
 
         $conversation = $this->conversation ?? Conversation::create([
             'agent_id' => $this->agent->id,
@@ -176,7 +168,12 @@ new #[Title('Chat')] class extends Component
         ]);
 
         $this->reset('draft', 'progress');
-        unset($this->conversation, $this->chatMessages, $this->conversations);
+        unset($this->conversation, $this->chatMessages);
+
+        // Refresh the "Recentes" list in the sidebar when a new chat begins.
+        if ($isNewConversation) {
+            $this->dispatch('conversation-started');
+        }
 
         if ($failed) {
             return;
@@ -209,40 +206,8 @@ new #[Title('Chat')] class extends Component
     }
 }; ?>
 
-<section class="flex h-[calc(100dvh-7rem)] min-h-[30rem] w-full gap-4">
-    {{-- Conversation history --}}
-    <aside class="hidden w-64 shrink-0 flex-col rounded-card border border-zinc-200 dark:border-zinc-700 md:flex">
-        <div class="p-3">
-            <flux:button wire:click="newChat" icon="plus" variant="primary" class="w-full justify-center" data-test="new-chat">
-                {{ __('Novo chat') }}
-            </flux:button>
-        </div>
-
-        <flux:separator />
-
-        <div class="flex-1 overflow-y-auto p-2">
-            @forelse ($this->conversations as $conversation)
-                <button
-                    type="button"
-                    wire:click="selectConversation({{ $conversation->id }})"
-                    wire:key="conv-{{ $conversation->id }}"
-                    @class([
-                        'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm',
-                        'bg-zinc-100 font-medium dark:bg-zinc-800' => $this->conversationId === $conversation->id,
-                        'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800/50' => $this->conversationId !== $conversation->id,
-                    ])
-                    data-test="conversation-item"
-                >
-                    <flux:icon name="chat-bubble-left" class="size-4 shrink-0 text-zinc-400" />
-                    <span class="truncate">{{ $conversation->title ?: __('Conversa') }}</span>
-                </button>
-            @empty
-                <flux:text class="px-3 py-6 text-center text-sm text-zinc-400">{{ __('Nenhuma conversa ainda.') }}</flux:text>
-            @endforelse
-        </div>
-    </aside>
-
-    {{-- Thread --}}
+<section class="flex h-[calc(100dvh-7rem)] min-h-[30rem] w-full">
+    {{-- Thread (conversation history lives in the app sidebar — "Recentes") --}}
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-card border border-zinc-200 dark:border-zinc-700">
         <header class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
             <div class="flex items-center gap-2">
@@ -256,7 +221,7 @@ new #[Title('Chat')] class extends Component
             </div>
 
             <div class="flex items-center gap-2">
-                <flux:button size="sm" variant="ghost" icon="plus" wire:click="newChat" class="md:hidden">{{ __('Novo') }}</flux:button>
+                <flux:button size="sm" variant="ghost" icon="plus" wire:click="newChat" data-test="new-chat">{{ __('Novo chat') }}</flux:button>
                 @if ($this->canManageAgent())
                     <flux:button size="sm" variant="ghost" icon="adjustments-horizontal" :href="route('agents.edit', ['agent' => $agent])" wire:navigate data-test="edit-agent">
                         {{ __('Editar agente') }}
