@@ -5,6 +5,8 @@ use App\Enums\UsageType;
 use App\Models\Agent;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Enums\AiLogType;
+use App\Services\Ai\AiAuditLogger;
 use App\Services\Ai\ChatService;
 use App\Services\Billing\UsageRecorder;
 use App\Services\Curation\CurationService;
@@ -12,6 +14,7 @@ use App\Support\ActiveOrganization;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Streaming\Events\Citation;
+use Laravel\Ai\Streaming\Events\StreamEnd;
 use Laravel\Ai\Streaming\Events\TextDelta;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -57,7 +60,7 @@ new #[Title('Chat')] class extends Component
         return $this->conversation?->messages()->oldest()->get() ?? new Collection;
     }
 
-    public function send(ChatService $chat, UsageRecorder $usage, CurationService $curation): void
+    public function send(ChatService $chat, UsageRecorder $usage, CurationService $curation, AiAuditLogger $audit): void
     {
         $this->validate();
         $this->confirmAgentBelongsToActiveOrganization($this->agent);
@@ -82,6 +85,7 @@ new #[Title('Chat')] class extends Component
         $events = [];
         $text = '';
         $failed = false;
+        $startedAt = microtime(true);
 
         try {
             foreach ($chat->answer($this->agent, $question, $history) as $event) {
@@ -110,6 +114,20 @@ new #[Title('Chat')] class extends Component
             $failed = true;
             $text = ChatService::FAILURE_MESSAGE;
         }
+
+        $latencyMs = (int) round((microtime(true) - $startedAt) * 1000);
+        $usageData = StreamEnd::combineUsage($events);
+        $tokens = $usageData ? ($usageData->promptTokens + $usageData->completionTokens) : 0;
+
+        $audit->record(
+            AiLogType::Chat,
+            $this->agent->organization_id,
+            $this->agent->id,
+            $latencyMs,
+            $tokens,
+            $failed ? __('Falha ao gerar a resposta.') : null,
+            ['conversation_id' => $conversation->id],
+        );
 
         $conversation->messages()->create([
             'role' => MessageRole::Assistant,

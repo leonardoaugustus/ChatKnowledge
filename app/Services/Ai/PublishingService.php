@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai;
 
+use App\Enums\AiLogType;
 use App\Enums\CurationStatus;
 use App\Enums\PublicationStatus;
 use App\Jobs\PublishKnowledgeItem;
@@ -12,6 +13,8 @@ use Laravel\Ai\Stores;
 
 class PublishingService
 {
+    public function __construct(private AiAuditLogger $auditLogger) {}
+
     /**
      * Push a single approved knowledge item to its agent's vector store.
      *
@@ -32,6 +35,8 @@ class PublishingService
             return;
         }
 
+        $startedAt = microtime(true);
+
         $store = Stores::get($agent->vector_store_id);
 
         if ($item->vector_file_id) {
@@ -48,6 +53,14 @@ class PublishingService
             'publication_status' => PublicationStatus::Published,
             'published_at' => now(),
         ]);
+
+        $this->auditLogger->record(
+            AiLogType::Publishing,
+            $item->organization_id,
+            $item->agent_id,
+            (int) round((microtime(true) - $startedAt) * 1000),
+            metadata: ['knowledge_item_id' => $item->id],
+        );
     }
 
     /**

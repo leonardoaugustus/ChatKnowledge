@@ -3,6 +3,7 @@
 namespace App\Services\Ai;
 
 use App\Ai\Agents\KnowledgeExtractor;
+use App\Enums\AiLogType;
 use App\Enums\CurationStatus;
 use App\Enums\DocumentStatus;
 use App\Enums\KnowledgeType;
@@ -15,6 +16,8 @@ use Throwable;
 
 class KnowledgeExtractionService
 {
+    public function __construct(private AiAuditLogger $auditLogger) {}
+
     /**
      * The user-facing message shown when extraction fails. Raw provider errors
      * are never surfaced to the user — only logged.
@@ -30,6 +33,8 @@ class KnowledgeExtractionService
     {
         $document->update(['status' => DocumentStatus::Processing]);
 
+        $startedAt = microtime(true);
+
         try {
             $raw = (string) Storage::disk($document->disk)->get($document->path);
 
@@ -40,6 +45,15 @@ class KnowledgeExtractionService
             }
 
             $document->update(['status' => DocumentStatus::Extracted, 'error' => null]);
+
+            $this->auditLogger->record(
+                AiLogType::Extraction,
+                $document->organization_id,
+                $document->agent_id,
+                $this->elapsedMs($startedAt),
+                $this->tokensFrom($response),
+                metadata: ['document_id' => $document->id],
+            );
         } catch (Throwable $e) {
             Log::error('Knowledge extraction failed', [
                 'document_id' => $document->id,
@@ -51,8 +65,29 @@ class KnowledgeExtractionService
 
             $document->update(['status' => DocumentStatus::Failed, 'error' => self::FAILURE_MESSAGE]);
 
+            $this->auditLogger->record(
+                AiLogType::Extraction,
+                $document->organization_id,
+                $document->agent_id,
+                $this->elapsedMs($startedAt),
+                error: $e->getMessage(),
+                metadata: ['document_id' => $document->id],
+            );
+
             throw $e;
         }
+    }
+
+    protected function elapsedMs(float $startedAt): int
+    {
+        return (int) round((microtime(true) - $startedAt) * 1000);
+    }
+
+    protected function tokensFrom(mixed $response): int
+    {
+        $usage = $response->usage ?? null;
+
+        return $usage ? ($usage->promptTokens + $usage->completionTokens) : 0;
     }
 
     /**

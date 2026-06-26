@@ -2,6 +2,7 @@
 
 use App\Models\Agent;
 use App\Models\AgentTool;
+use App\Models\AiLog;
 use App\Models\Concerns\BelongsToOrganization;
 use App\Models\Conversation;
 use App\Models\Document;
@@ -23,6 +24,7 @@ function testedTenantModels(): array
     return [
         Agent::class,
         AgentTool::class,
+        AiLog::class,
         Conversation::class,
         Document::class,
         KnowledgeItem::class,

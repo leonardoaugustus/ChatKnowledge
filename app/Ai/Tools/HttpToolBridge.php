@@ -2,8 +2,10 @@
 
 namespace App\Ai\Tools;
 
+use App\Enums\AiLogType;
 use App\Models\Agent;
 use App\Models\AgentTool;
+use App\Services\Ai\AiAuditLogger;
 use App\Services\Tools\HttpToolExecutor;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -66,14 +68,34 @@ class HttpToolBridge implements Tool
             return __('Ferramenta indisponível para este agente.');
         }
 
+        $startedAt = microtime(true);
+
         try {
-            return (string) json_encode(
+            $output = (string) json_encode(
                 app(HttpToolExecutor::class)->execute($this->tool, $input),
                 JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
             );
+
+            $this->audit($startedAt);
+
+            return $output;
         } catch (Throwable $e) {
+            $this->audit($startedAt, $e->getMessage());
+
             return 'Erro ao executar a ferramenta: '.$e->getMessage();
         }
+    }
+
+    protected function audit(float $startedAt, ?string $error = null): void
+    {
+        app(AiAuditLogger::class)->record(
+            AiLogType::ToolExecution,
+            $this->agent->organization_id,
+            $this->agent->id,
+            (int) round((microtime(true) - $startedAt) * 1000),
+            error: $error,
+            metadata: ['tool' => $this->tool->name],
+        );
     }
 
     /**
