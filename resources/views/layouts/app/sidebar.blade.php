@@ -13,22 +13,45 @@
             <livewire:organization-switcher />
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
+                <flux:sidebar.group :heading="__('Plataforma')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                @php
+                    $workspaceNav = [
+                        ['route' => 'agents.index', 'icon' => 'cpu-chip', 'label' => 'Agentes'],
+                        ['route' => 'training.index', 'icon' => 'document-arrow-up', 'label' => 'Treinamento'],
+                        ['route' => 'curation.index', 'icon' => 'clipboard-document-check', 'label' => 'Curadoria'],
+                        ['route' => 'chat.index', 'icon' => 'chat-bubble-left-right', 'label' => 'Chat'],
+                        ['route' => 'tools.index', 'icon' => 'wrench-screwdriver', 'label' => 'Tools'],
+                    ];
+                @endphp
+
+                <flux:sidebar.group :heading="__('Workspace')" class="grid">
+                    @foreach ($workspaceNav as $item)
+                        @if (Route::has($item['route']))
+                            <flux:sidebar.item :icon="$item['icon']" :href="route($item['route'])" :current="request()->routeIs($item['route'].'*')" wire:navigate>
+                                {{ __($item['label']) }}
+                            </flux:sidebar.item>
+                        @else
+                            <flux:sidebar.item :icon="$item['icon']" href="#" class="pointer-events-none opacity-50" aria-disabled="true">
+                                {{ __($item['label']) }}
+                                <flux:badge size="sm" color="zinc" class="ms-auto in-data-flux-sidebar-collapsed-desktop:hidden">{{ __('Em breve') }}</flux:badge>
+                            </flux:sidebar.item>
+                        @endif
+                    @endforeach
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
+            <x-plan-usage class="mb-2" />
 
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
+            <flux:sidebar.nav>
+                <flux:sidebar.item icon="cog-6-tooth" :href="route('profile.edit')" :current="request()->routeIs('profile.*')" wire:navigate>
+                    {{ __('Configurações') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
