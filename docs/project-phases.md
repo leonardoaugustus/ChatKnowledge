@@ -183,7 +183,7 @@
   - **Tests:** `tests/Feature/Tools/ToolDefinitionTest.php` — `it creates an HTTP tool scoped to the agent`; `it validates the schema`; `tools from another organization are not visible`.
 
 ### 9.2 — Tool Execution
-- [ ] **9.2.1** The agent can call a configured tool during a chat (via the AI SDK tool interface), passing validated input and parsing output per schema. Calls wrapped in a Service using the `Http` facade.
+- [x] **9.2.1** The agent can call a configured tool during a chat (via the AI SDK tool interface), passing validated input and parsing output per schema. Calls wrapped in a Service using the `Http` facade.
   - **Tests:** `tests/Feature/Tools/ToolExecutionTest.php` (Http::fake) — `it invokes the configured endpoint with the right method/headers`; `it validates input against the schema`; `it surfaces tool errors without crashing the chat`; `it never executes a tool from another organization`.
 
 ---

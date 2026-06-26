@@ -2,7 +2,9 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Tools\HttpToolBridge;
 use App\Models\Agent as BusinessAgent;
+use App\Models\AgentTool;
 use App\Services\Ai\ChatService;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
@@ -51,18 +53,26 @@ class ChatAgent implements Agent, Conversational, HasTools
     }
 
     /**
-     * RAG over the agent's own dedicated vector store only.
+     * RAG over the agent's own dedicated vector store, plus its configured,
+     * enabled HTTP tools.
      *
-     * @return array<int, FileSearch>
+     * @return array<int, FileSearch|HttpToolBridge>
      */
     public function tools(): iterable
     {
-        if (! $this->agent->vector_store_id) {
-            return [];
+        $tools = [];
+
+        if ($this->agent->vector_store_id) {
+            $tools[] = new FileSearch(stores: [$this->agent->vector_store_id]);
         }
 
-        return [
-            new FileSearch(stores: [$this->agent->vector_store_id]),
-        ];
+        $this->agent->agentTools()
+            ->where('enabled', true)
+            ->get()
+            ->each(function (AgentTool $tool) use (&$tools) {
+                $tools[] = new HttpToolBridge($tool, $this->agent);
+            });
+
+        return $tools;
     }
 }
