@@ -202,9 +202,9 @@
   - **Tests:** `tests/Feature/ErrorHandling/AiFailureTest.php` — `it surfaces a friendly message on extraction failure`; `it retries the publish job on transient failure`; `it logs but does not display raw provider errors`.
 - [x] **11.2** Authorization policies (Admin vs Collaborator) across agents, training, curation, tools, billing.
   - **Tests:** `tests/Feature/Authorization/PolicyTest.php` — `a collaborator cannot curate, manage agents, or change billing`; `a collaborator can chat`; `an admin can do all of the above`.
-- [ ] **11.3** Architecture pass with `pest --arch`.
+- [x] **11.3** Architecture pass with `pest --arch`.
   - **Tests:** `tests/Arch/ArchTest.php` — `Livewire components live under App\Livewire and are final`; `Services live under App\Services and do not read session/auth directly`; `Enums are final`; `tenant-owned models use BelongsToOrganization`.
-- [ ] **11.4** Tenant-isolation audit: every tenant-owned model has a cross-organization leak test.
+- [x] **11.4** Tenant-isolation audit: every tenant-owned model has a cross-organization leak test.
   - **Tests:** `tests/Arch/TenantIsolationTest.php` — `every model using BelongsToOrganization has a corresponding isolation test`.
 - [ ] **11.5** AI audit logs: record logs for `extraction`, `publishing`, `chat`, and `tool execution`, capturing `latency`, `tokens`, `estimated cost`, and `errors`. These logs serve auditing and debugging purposes.
   - **Tests:** `tests/Feature/Audit/AiLogTest.php` — `it logs an extraction event with latency, tokens and estimated cost`; `it logs a publishing event`; `it logs a chat event`; `it logs a tool execution event`; `it logs errors`.
