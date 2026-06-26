@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\CurationStatus;
+use App\Enums\Role;
+use App\Livewire\Forms\ManualFaqForm;
 use App\Models\Agent;
 use App\Models\KnowledgeItem;
 use App\Services\Curation\CurationService;
@@ -15,6 +17,8 @@ use Livewire\Component;
 new #[Title('Curadoria')] class extends Component
 {
     public Agent $agent;
+
+    public ManualFaqForm $faqForm;
 
     public ?int $editingId = null;
 
@@ -55,7 +59,11 @@ new #[Title('Curadoria')] class extends Component
         $item = $this->item($this->editingId);
         Gate::authorize('update', $item);
 
-        $this->validate();
+        $this->validate([
+            'editTitle' => 'required|string|max:255',
+            'editContent' => 'required|string',
+            'editSummary' => 'nullable|string',
+        ]);
 
         $curationService->update($item, [
             'title' => $this->editTitle,
@@ -97,6 +105,24 @@ new #[Title('Curadoria')] class extends Component
         unset($this->groupedItems);
     }
 
+    public function createManualFaq(CurationService $curationService): void
+    {
+        abort_unless(
+            auth()->user()->organizationRole($this->agent->organization) === Role::Admin,
+            403,
+        );
+
+        $this->faqForm->validate();
+
+        $curationService->createManualFaq($this->agent, auth()->user(), $this->faqForm->all());
+
+        $this->faqForm->reset();
+        unset($this->groupedItems);
+
+        Flux::modal('manual-faq')->close();
+        Flux::toast(variant: 'success', text: __('FAQ criada.'));
+    }
+
     /**
      * Pending knowledge items for the agent, grouped by KnowledgeType.
      *
@@ -114,7 +140,13 @@ new #[Title('Curadoria')] class extends Component
 }; ?>
 
 <section class="w-full">
-    <x-page-header :title="__('Curadoria')" :description="$agent->name" />
+    <x-page-header :title="__('Curadoria')" :description="$agent->name">
+        <x-slot:actions>
+            <flux:modal.trigger name="manual-faq">
+                <flux:button variant="primary" icon="plus" data-test="manual-faq-trigger">{{ __('FAQ manual') }}</flux:button>
+            </flux:modal.trigger>
+        </x-slot:actions>
+    </x-page-header>
 
     @forelse ($this->groupedItems as $typeValue => $items)
         @php($type = App\Enums\KnowledgeType::from($typeValue))
@@ -155,6 +187,28 @@ new #[Title('Curadoria')] class extends Component
             :description="__('Os itens extraídos aparecerão aqui para revisão.')"
         />
     @endforelse
+
+    <flux:modal name="manual-faq" class="max-w-lg">
+        <form wire:submit="createManualFaq" class="space-y-4">
+            <flux:heading size="lg">{{ __('Nova FAQ manual') }}</flux:heading>
+            <flux:subheading>{{ __('Criada já aprovada, pronta para publicação.') }}</flux:subheading>
+
+            <flux:input wire:model="faqForm.title" :label="__('Pergunta / Título')" data-test="faq-title" />
+            @error('faqForm.title') <flux:error :message="$message" /> @enderror
+
+            <flux:textarea wire:model="faqForm.content" :label="__('Resposta')" rows="5" data-test="faq-content" />
+            @error('faqForm.content') <flux:error :message="$message" /> @enderror
+
+            <flux:textarea wire:model="faqForm.summary" :label="__('Resumo')" rows="2" data-test="faq-summary" />
+
+            <div class="flex justify-end gap-2">
+                <flux:modal.close>
+                    <flux:button variant="filled">{{ __('Cancelar') }}</flux:button>
+                </flux:modal.close>
+                <flux:button type="submit" variant="primary" data-test="faq-save">{{ __('Criar FAQ') }}</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 
     <flux:modal name="edit-knowledge-item" class="max-w-lg">
         <form wire:submit="saveEdit" class="space-y-4">

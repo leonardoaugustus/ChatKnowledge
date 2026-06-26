@@ -139,7 +139,7 @@
 ### 5.2 — Curation Actions
 - [x] **5.2.1** Edit / complement / remove / approve / reject a knowledge item. **Nothing is published to the Vector Store here** — approval only flags items as ready.
   - **Tests:** `tests/Feature/Livewire/Curation/ActionsTest.php` — `it edits an item`; `it approves an item (CurationStatus::Approved)`; `it rejects an item`; `it removes an item`; `only an Admin can curate`; `approval does not push to the vector store yet`.
-- [ ] **5.2.2** Manual FAQ entry (create approved knowledge directly, still requires explicit approval state).
+- [x] **5.2.2** Manual FAQ entry (create approved knowledge directly, still requires explicit approval state).
   - **Tests:** `tests/Feature/Livewire/Curation/ManualFaqTest.php` — `it creates a manual FAQ item`; `it is scoped to agent and organization`.
 
 ---
