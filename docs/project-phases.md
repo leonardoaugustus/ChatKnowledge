@@ -165,7 +165,7 @@
   - **Tests:** `tests/Feature/Livewire/Chat/ChatTest.php` (faked) — `it answers using the agent's vector store`; `it confirms the agent belongs to the active organization before querying`; `it persists the conversation and messages`; `it requires authentication`; `responses are streamed via native streaming, not synchronous`; `it surfaces execution progress events while streaming`.
 
 ### 7.2 — Sources & Anti-Hallucination
-- [ ] **7.2.1** Each answer cites its source knowledge items. When no sufficient knowledge is found, respond exactly: "Não encontrei essa informação na base de conhecimento deste agente."
+- [x] **7.2.1** Each answer cites its source knowledge items. When no sufficient knowledge is found, respond exactly: "Não encontrei essa informação na base de conhecimento deste agente."
   - **Tests:** `tests/Feature/Livewire/Chat/AntiHallucinationTest.php` (faked) — `it renders the source(s) for an answer`; `it returns the no-knowledge message when FileSearch finds nothing`; `it never answers from outside the vector store`.
 
 ### 7.3 — Unanswered → Curation Queue

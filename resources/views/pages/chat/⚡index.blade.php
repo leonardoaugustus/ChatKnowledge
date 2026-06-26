@@ -134,6 +134,17 @@ new #[Title('Chat')] class extends Component
             ]) wire:key="msg-{{ $message->id }}">
                 <flux:text class="text-2xs font-semibold uppercase tracking-wide text-zinc-500">{{ $message->role->label() }}</flux:text>
                 <div class="prose prose-sm mt-1 max-w-none dark:prose-invert">{!! str()->markdown($message->content) !!}</div>
+
+                @if ($message->role === MessageRole::Assistant && filled($message->sources))
+                    <div class="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-700" data-test="message-sources">
+                        <flux:text class="text-2xs font-semibold uppercase tracking-wide text-zinc-500">{{ __('Fontes') }}</flux:text>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            @foreach ($message->sources as $source)
+                                <flux:badge size="sm" color="zinc">{{ $source['title'] ?? __('Fonte') }}</flux:badge>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         @endforeach
 

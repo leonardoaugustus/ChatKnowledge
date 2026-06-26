@@ -15,6 +15,12 @@ use Laravel\Ai\Streaming\Events\ToolCall;
 class ChatService
 {
     /**
+     * The exact message the agent must return when its knowledge base does not
+     * contain enough information to answer.
+     */
+    public const NO_KNOWLEDGE_MESSAGE = 'Não encontrei essa informação na base de conhecimento deste agente.';
+
+    /**
      * Stream an answer from the agent over its own vector store (native
      * streaming — never synchronous).
      *

@@ -3,6 +3,7 @@
 namespace App\Ai\Agents;
 
 use App\Models\Agent as BusinessAgent;
+use App\Services\Ai\ChatService;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
@@ -23,11 +24,20 @@ class ChatAgent implements Agent, Conversational, HasTools
     ) {}
 
     /**
-     * The agent's persona/rules come from its compiled system prompt.
+     * The agent's persona/rules (compiled system prompt) plus a mandatory
+     * anti-hallucination guardrail constraining answers to the vector store.
      */
     public function instructions(): string
     {
-        return (string) ($this->agent->config?->compiled_system_prompt ?? '');
+        $persona = trim((string) ($this->agent->config?->compiled_system_prompt ?? ''));
+
+        $guardrail = 'Responda EXCLUSIVAMENTE com base nas informações encontradas na base de '
+            .'conhecimento (File Search) deste agente. Sempre cite a fonte utilizada. Se a base não '
+            .'contiver informação suficiente para responder, responda EXATAMENTE com a frase: "'
+            .ChatService::NO_KNOWLEDGE_MESSAGE.'". Nunca invente informações nem utilize '
+            .'conhecimento externo à base de conhecimento deste agente.';
+
+        return trim($persona."\n\n".$guardrail);
     }
 
     /**
