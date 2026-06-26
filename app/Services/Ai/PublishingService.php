@@ -16,7 +16,9 @@ class PublishingService
      * Push a single approved knowledge item to its agent's vector store.
      *
      * Publishing is incremental: only this item's content is synced, never the
-     * whole source document. Pending/rejected items are ignored.
+     * whole source document. Pending/rejected items are ignored. When the item
+     * was already published, its previous file is removed first so an edit
+     * re-syncs only that item.
      */
     public function publish(KnowledgeItem $item): void
     {
@@ -32,6 +34,10 @@ class PublishingService
 
         $store = Stores::get($agent->vector_store_id);
 
+        if ($item->vector_file_id) {
+            $store->remove($item->vector_file_id);
+        }
+
         $file = VectorFile::fromString($item->content, 'text/plain')
             ->as("knowledge-item-{$item->id}.txt");
 
@@ -42,6 +48,15 @@ class PublishingService
             'publication_status' => PublicationStatus::Published,
             'published_at' => now(),
         ]);
+    }
+
+    /**
+     * Re-sync an already-published item after an edit (removes the old file and
+     * pushes the new content — only that item).
+     */
+    public function republish(KnowledgeItem $item): void
+    {
+        $this->publish($item);
     }
 
     /**

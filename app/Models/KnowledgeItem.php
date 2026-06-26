@@ -6,8 +6,10 @@ use App\Enums\CurationStatus;
 use App\Enums\KnowledgeType;
 use App\Enums\PublicationStatus;
 use App\Models\Concerns\BelongsToOrganization;
+use App\Observers\KnowledgeItemObserver;
 use Database\Factories\KnowledgeItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,6 +48,7 @@ use Illuminate\Support\Carbon;
     'summary', 'source_excerpt', 'confidence_score', 'curation_status', 'publication_status',
     'approved_by', 'approved_at', 'published_at', 'vector_file_id', 'metadata', 'version',
 ])]
+#[ObservedBy([KnowledgeItemObserver::class])]
 class KnowledgeItem extends Model
 {
     /** @use HasFactory<KnowledgeItemFactory> */

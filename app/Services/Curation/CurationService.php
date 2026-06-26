@@ -5,6 +5,7 @@ namespace App\Services\Curation;
 use App\Enums\CurationStatus;
 use App\Enums\KnowledgeType;
 use App\Enums\PublicationStatus;
+use App\Jobs\PublishKnowledgeItem;
 use App\Models\Agent;
 use App\Models\KnowledgeItem;
 use App\Models\User;
@@ -20,6 +21,11 @@ class CurationService
     public function update(KnowledgeItem $item, array $attributes): KnowledgeItem
     {
         $item->update(Arr::only($attributes, ['title', 'content', 'summary']));
+
+        // Editing an already-published item re-syncs only that item.
+        if ($item->publication_status === PublicationStatus::Published) {
+            PublishKnowledgeItem::dispatch($item);
+        }
 
         return $item;
     }

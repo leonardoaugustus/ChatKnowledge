@@ -4,11 +4,13 @@ use App\Enums\CurationStatus;
 use App\Enums\KnowledgeType;
 use App\Enums\PublicationStatus;
 use App\Jobs\PublishKnowledgeItem;
+use App\Jobs\RemoveKnowledgeItemFromStore;
 use App\Models\Agent;
 use App\Models\Document;
 use App\Models\KnowledgeItem;
 use App\Models\User;
 use App\Services\Ai\PublishingService;
+use App\Services\Curation\CurationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Laravel\Ai\Contracts\Files\StorableFile;
 use Laravel\Ai\Stores;
@@ -126,4 +128,66 @@ it('marks the item published and is async', function () {
         ->and($item->fresh()->published_at)->not->toBeNull();
 
     expect(is_subclass_of(PublishKnowledgeItem::class, ShouldQueue::class))->toBeTrue();
+});
+
+it('re-syncs an edited published item', function () {
+    $item = approvedItem([
+        'content' => 'old content',
+        'publication_status' => PublicationStatus::Published,
+        'vector_file_id' => 'vf_old',
+    ]);
+
+    $item->update(['content' => 'new content']);
+
+    app(PublishingService::class)->republish($item->fresh());
+
+    Stores::get($this->agent->vector_store_id)
+        ->assertAdded(fn (StorableFile $file) => $file->content() === 'new content');
+
+    expect($item->fresh())
+        ->publication_status->toBe(PublicationStatus::Published)
+        ->vector_file_id->not->toBeNull()
+        ->and($item->fresh()->published_at)->not->toBeNull();
+});
+
+it('re-syncs only the edited item when curating a published item', function () {
+    Queue::fake();
+
+    $item = approvedItem([
+        'publication_status' => PublicationStatus::Published,
+        'vector_file_id' => 'vf_pub',
+    ]);
+
+    app(CurationService::class)->update($item, ['content' => 'edited']);
+
+    Queue::assertPushed(PublishKnowledgeItem::class, 1);
+    Queue::assertPushed(fn (PublishKnowledgeItem $job) => $job->item->is($item));
+});
+
+it('removes the item from the store when deleted', function () {
+    Queue::fake();
+
+    $item = approvedItem([
+        'publication_status' => PublicationStatus::Published,
+        'vector_file_id' => 'vf_del',
+    ]);
+
+    $item->delete();
+
+    Queue::assertPushed(
+        RemoveKnowledgeItemFromStore::class,
+        fn ($job) => $job->vectorFileId === 'vf_del' && $job->vectorStoreId === $this->agent->vector_store_id,
+    );
+});
+
+it('does not remove from the store when an unpublished item is deleted', function () {
+    Queue::fake();
+
+    $item = KnowledgeItem::factory()->for($this->organization)->for($this->agent)->create([
+        'vector_file_id' => null,
+    ]);
+
+    $item->delete();
+
+    Queue::assertNotPushed(RemoveKnowledgeItemFromStore::class);
 });
