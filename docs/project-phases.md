@@ -95,7 +95,7 @@
 
 - [x] **2.5.1** Subscribe the active organization to the single fixed plan (US$18/mo) via Cashier checkout; handle Stripe webhooks (created/updated/canceled). Plan limits are read from configuration (admin-configurable), not hardcoded.
   - **Tests:** `tests/Feature/Billing/SubscriptionTest.php` — `it subscribes the organization to the fixed plan`; `it reflects subscription status from webhooks`; `the Billable lives on Organization not User`; `it reads plan limits from configuration`.
-- [ ] **2.5.2** `EnsureSubscribed` middleware gating app features when not active (read-only / blocked per policy).
+- [x] **2.5.2** `EnsureSubscribed` middleware gating app features when not active (read-only / blocked per policy).
   - **Tests:** `tests/Feature/Billing/EnsureSubscribedTest.php` — `it blocks gated routes without an active subscription`; `it allows access while subscribed`.
 - [ ] **2.5.3** Usage measurement: `usage_records` (org + agent + type + quantity + timestamp), written on each AI question/extraction. _No overage billing in V1 — measurement only._
   - **Tests:** `tests/Feature/Billing/UsageRecordTest.php` — `it records a usage row per AI question`; `usage is scoped to the organization`.
