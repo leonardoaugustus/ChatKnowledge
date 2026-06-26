@@ -161,7 +161,7 @@
 ## Phase 7 — Chat (RAG with streaming)
 
 ### 7.1 — Chat Shell & Streaming
-- [ ] **7.1.1** Livewire chat page for collaborators using **Laravel AI SDK Native Streaming**, querying the agent's Vector Store through `FileSearch`. Persists conversation + messages. Never synchronous. While streaming, whenever the SDK exposes execution events the UI MUST show execution progress, e.g.: querying documents, searching the Vector Store, running File Search, using Tools, generating the answer.
+- [x] **7.1.1** Livewire chat page for collaborators using **Laravel AI SDK Native Streaming**, querying the agent's Vector Store through `FileSearch`. Persists conversation + messages. Never synchronous. While streaming, whenever the SDK exposes execution events the UI MUST show execution progress, e.g.: querying documents, searching the Vector Store, running File Search, using Tools, generating the answer.
   - **Tests:** `tests/Feature/Livewire/Chat/ChatTest.php` (faked) — `it answers using the agent's vector store`; `it confirms the agent belongs to the active organization before querying`; `it persists the conversation and messages`; `it requires authentication`; `responses are streamed via native streaming, not synchronous`; `it surfaces execution progress events while streaming`.
 
 ### 7.2 — Sources & Anti-Hallucination
