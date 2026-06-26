@@ -47,10 +47,10 @@
   - **Tests:** _none — configuration only._
 - [x] **0.3** Define domain enums in `app/Enums` (all `final`): `Role` (`Admin`, `Colaborador`), `AgentStatus` (`Draft`, `Published`), `DocumentStatus` (`Uploaded`, `Processing`, `Extracted`, `PendingCuration`, `Approved`, `Publishing`, `Published`, `Failed`), `CurationStatus` (`Pending`, `Approved`, `Rejected`), `KnowledgeType` (`Procedure`, `Rule`, `Policy`, `Faq`, `IdealAnswer`, `Exception`, `Glossary`, `Flow`, `OperationalStep`).
   - **Tests:** `tests/Unit/Enums/EnumsTest.php` — `it exposes label/color tokens for each case`; `it maps extractor output strings to KnowledgeType`.
-- [ ] **0.4** `App\Support\ActiveOrganization` (scoped singleton) + `App\Models\Concerns\BelongsToOrganization` trait (global scope + auto-fill + `organization()` relation).
+- [x] **0.4** `App\Support\ActiveOrganization` (scoped singleton) + `App\Models\Concerns\BelongsToOrganization` trait (global scope + auto-fill + `organization()` relation).
   - **Tests:** `tests/Unit/Support/ActiveOrganizationTest.php` — `it resolves the active organization id from the user`; `it returns null when no user/organization`.
   - `tests/Feature/Tenancy/BelongsToOrganizationTest.php` — `it auto-fills organization_id on create`; `it scopes queries to the active organization`; `it never returns records from another organization`.
-- [ ] **0.5** `EnsureActiveOrganization` middleware — validates the user belongs to `current_organization_id` via the pivot; falls back / redirects otherwise.
+- [x] **0.5** `EnsureActiveOrganization` middleware — validates the user belongs to `current_organization_id` via the pivot; falls back / redirects otherwise.
   - **Tests:** `tests/Feature/Tenancy/EnsureActiveOrganizationTest.php` — `it passes when membership is valid`; `it falls back when current_organization_id is stale`; `it never proceeds with an organization the user does not belong to`.
 - [ ] **0.6** Pest base helpers in `tests/Pest.php`: `actingAsManager()`, `actingAsCollaborator()`, `withActiveOrganization()`, `fakeAi()` (binds the Laravel AI SDK fake), `fakeVectorStore()`.
   - **Tests:** _none — used indirectly everywhere._
