@@ -1,17 +1,18 @@
 <?php
 
+use App\Enums\AiLogType;
 use App\Enums\MessageRole;
 use App\Enums\UsageType;
 use App\Models\Agent;
 use App\Models\Conversation;
 use App\Models\Message;
-use App\Enums\AiLogType;
 use App\Services\Ai\AiAuditLogger;
 use App\Services\Ai\ChatService;
 use App\Services\Billing\UsageRecorder;
 use App\Services\Curation\CurationService;
 use App\Support\ActiveOrganization;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Streaming\Events\Citation;
 use Laravel\Ai\Streaming\Events\StreamEnd;
@@ -45,6 +46,25 @@ new #[Title('Chat')] class extends Component
         abort_unless($agent->organization_id === app(ActiveOrganization::class)->id(), 403);
     }
 
+    public function canManageAgent(): bool
+    {
+        return Gate::allows('update', $this->agent);
+    }
+
+    /**
+     * The current user's conversations with this agent (most recent first).
+     *
+     * @return Collection<int, Conversation>
+     */
+    #[Computed]
+    public function conversations(): Collection
+    {
+        return Conversation::where('agent_id', $this->agent->id)
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+    }
+
     #[Computed]
     public function conversation(): ?Conversation
     {
@@ -58,6 +78,26 @@ new #[Title('Chat')] class extends Component
     public function chatMessages(): Collection
     {
         return $this->conversation?->messages()->oldest()->get() ?? new Collection;
+    }
+
+    public function newChat(): void
+    {
+        $this->reset('conversationId', 'draft', 'progress');
+        unset($this->conversation, $this->chatMessages);
+    }
+
+    public function selectConversation(int $id): void
+    {
+        $conversation = Conversation::where('id', $id)
+            ->where('agent_id', $this->agent->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($conversation) {
+            $this->conversationId = $conversation->id;
+            $this->reset('draft', 'progress');
+            unset($this->conversation, $this->chatMessages);
+        }
     }
 
     public function send(ChatService $chat, UsageRecorder $usage, CurationService $curation, AiAuditLogger $audit): void
@@ -135,10 +175,10 @@ new #[Title('Chat')] class extends Component
             'sources' => $failed ? [] : $this->sourcesFrom($events),
         ]);
 
-        if ($failed) {
-            $this->reset('draft', 'progress');
-            unset($this->conversation, $this->chatMessages);
+        $this->reset('draft', 'progress');
+        unset($this->conversation, $this->chatMessages, $this->conversations);
 
+        if ($failed) {
             return;
         }
 
@@ -151,9 +191,6 @@ new #[Title('Chat')] class extends Component
 
             $curation->recordGap($this->agent, $question);
         }
-
-        $this->reset('draft', 'progress');
-        unset($this->conversation, $this->chatMessages);
     }
 
     /**
@@ -172,45 +209,142 @@ new #[Title('Chat')] class extends Component
     }
 }; ?>
 
-<section class="flex h-full w-full flex-col">
-    <x-page-header :title="__('Chat')" :description="$agent->name" />
+<section class="flex h-[calc(100dvh-7rem)] min-h-[30rem] w-full gap-4">
+    {{-- Conversation history --}}
+    <aside class="hidden w-64 shrink-0 flex-col rounded-card border border-zinc-200 dark:border-zinc-700 md:flex">
+        <div class="p-3">
+            <flux:button wire:click="newChat" icon="plus" variant="primary" class="w-full justify-center" data-test="new-chat">
+                {{ __('Novo chat') }}
+            </flux:button>
+        </div>
 
-    <x-agent-nav :agent="$agent" />
+        <flux:separator />
 
-    <div class="mt-6 flex-1 space-y-4 overflow-y-auto" data-test="chat-messages">
-        @foreach ($this->chatMessages as $message)
-            <div @class([
-                'rounded-card border p-4',
-                'border-zinc-200 dark:border-zinc-700' => $message->role === MessageRole::Assistant,
-                'border-brand-200 bg-brand-50 dark:border-brand-900 dark:bg-brand-950/40' => $message->role === MessageRole::User,
-            ]) wire:key="msg-{{ $message->id }}">
-                <flux:text class="text-2xs font-semibold uppercase tracking-wide text-zinc-500">{{ $message->role->label() }}</flux:text>
-                <div class="prose prose-sm mt-1 max-w-none dark:prose-invert">{!! str()->markdown($message->content) !!}</div>
+        <div class="flex-1 overflow-y-auto p-2">
+            @forelse ($this->conversations as $conversation)
+                <button
+                    type="button"
+                    wire:click="selectConversation({{ $conversation->id }})"
+                    wire:key="conv-{{ $conversation->id }}"
+                    @class([
+                        'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm',
+                        'bg-zinc-100 font-medium dark:bg-zinc-800' => $this->conversationId === $conversation->id,
+                        'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800/50' => $this->conversationId !== $conversation->id,
+                    ])
+                    data-test="conversation-item"
+                >
+                    <flux:icon name="chat-bubble-left" class="size-4 shrink-0 text-zinc-400" />
+                    <span class="truncate">{{ $conversation->title ?: __('Conversa') }}</span>
+                </button>
+            @empty
+                <flux:text class="px-3 py-6 text-center text-sm text-zinc-400">{{ __('Nenhuma conversa ainda.') }}</flux:text>
+            @endforelse
+        </div>
+    </aside>
 
-                @if ($message->role === MessageRole::Assistant && filled($message->sources))
-                    <div class="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-700" data-test="message-sources">
-                        <flux:text class="text-2xs font-semibold uppercase tracking-wide text-zinc-500">{{ __('Fontes') }}</flux:text>
-                        <div class="mt-1 flex flex-wrap gap-1">
-                            @foreach ($message->sources as $source)
-                                <flux:badge size="sm" color="zinc">{{ $source['title'] ?? __('Fonte') }}</flux:badge>
-                            @endforeach
-                        </div>
-                    </div>
+    {{-- Thread --}}
+    <div class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-card border border-zinc-200 dark:border-zinc-700">
+        <header class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+            <div class="flex items-center gap-2">
+                <div class="flex size-8 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                    <flux:icon name="cpu-chip" class="size-4" />
+                </div>
+                <div>
+                    <flux:heading size="sm">{{ $agent->name }}</flux:heading>
+                    <flux:text class="text-xs text-zinc-500">{{ __('Assistente de conhecimento') }}</flux:text>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <flux:button size="sm" variant="ghost" icon="plus" wire:click="newChat" class="md:hidden">{{ __('Novo') }}</flux:button>
+                @if ($this->canManageAgent())
+                    <flux:button size="sm" variant="ghost" icon="adjustments-horizontal" :href="route('agents.edit', ['agent' => $agent])" wire:navigate data-test="edit-agent">
+                        {{ __('Editar agente') }}
+                    </flux:button>
                 @endif
             </div>
-        @endforeach
+        </header>
 
-        @if ($this->progress)
-            <div class="flex items-center gap-2 text-sm text-zinc-500" data-test="chat-progress">
-                <flux:icon name="arrow-path" class="size-4 animate-spin" />
-                <span wire:stream="progress">{{ end($this->progress) }}</span>
-            </div>
-            <div class="prose prose-sm max-w-none dark:prose-invert" wire:stream="answer"></div>
-        @endif
+        <div
+            class="flex-1 overflow-y-auto px-4 py-6"
+            data-test="chat-messages"
+            x-data
+            x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
+            x-on:livewire:updated.window="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
+        >
+            @if ($this->chatMessages->isEmpty() && ! $this->progress)
+                <div class="flex h-full flex-col items-center justify-center text-center">
+                    <div class="flex size-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                        <flux:icon name="sparkles" class="size-6" />
+                    </div>
+                    <flux:heading size="lg" class="mt-4">{{ __('Como posso ajudar?') }}</flux:heading>
+                    <flux:text class="mt-1 max-w-sm text-zinc-500">
+                        {{ __('Pergunte qualquer coisa sobre a base de conhecimento de :name.', ['name' => $agent->name]) }}
+                    </flux:text>
+                </div>
+            @else
+                <div class="mx-auto flex max-w-3xl flex-col gap-6">
+                    @foreach ($this->chatMessages as $message)
+                        <div @class([
+                            'flex gap-3',
+                            'flex-row-reverse' => $message->role === MessageRole::User,
+                        ]) wire:key="msg-{{ $message->id }}">
+                            <div @class([
+                                'flex size-8 shrink-0 items-center justify-center rounded-full',
+                                'bg-brand-600 text-white' => $message->role === MessageRole::User,
+                                'bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300' => $message->role === MessageRole::Assistant,
+                            ])>
+                                <flux:icon :name="$message->role === MessageRole::User ? 'user' : 'cpu-chip'" class="size-4" />
+                            </div>
+
+                            <div @class([
+                                'max-w-[80%] rounded-2xl px-4 py-3',
+                                'bg-brand-600 text-white' => $message->role === MessageRole::User,
+                                'bg-zinc-100 dark:bg-zinc-800' => $message->role === MessageRole::Assistant,
+                            ])>
+                                <div @class([
+                                    'prose prose-sm max-w-none',
+                                    'prose-invert' => $message->role === MessageRole::User,
+                                    'dark:prose-invert' => $message->role === MessageRole::Assistant,
+                                ])>{!! str()->markdown($message->content) !!}</div>
+
+                                @if ($message->role === MessageRole::Assistant && filled($message->sources))
+                                    <div class="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-700" data-test="message-sources">
+                                        <flux:text class="text-2xs font-semibold uppercase tracking-wide text-zinc-500">{{ __('Fontes') }}</flux:text>
+                                        <div class="mt-1 flex flex-wrap gap-1">
+                                            @foreach ($message->sources as $source)
+                                                <flux:badge size="sm" color="zinc">{{ $source['title'] ?? __('Fonte') }}</flux:badge>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @if ($this->progress)
+                        <div class="flex gap-3">
+                            <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                                <flux:icon name="cpu-chip" class="size-4" />
+                            </div>
+                            <div class="max-w-[80%] rounded-2xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800">
+                                <div class="flex items-center gap-2 text-sm text-zinc-500" data-test="chat-progress">
+                                    <flux:icon name="arrow-path" class="size-4 animate-spin" />
+                                    <span wire:stream="progress">{{ end($this->progress) }}</span>
+                                </div>
+                                <div class="prose prose-sm mt-1 max-w-none dark:prose-invert" wire:stream="answer"></div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+        </div>
+
+        <div class="border-t border-zinc-200 p-4 dark:border-zinc-700">
+            <form wire:submit="send" class="mx-auto flex max-w-3xl items-end gap-2">
+                <flux:input wire:model="draft" :placeholder="__('Pergunte algo ao agente...')" class="flex-1" data-test="chat-input" />
+                <flux:button type="submit" variant="primary" icon="paper-airplane" :aria-label="__('Enviar')" data-test="chat-send" />
+            </form>
+        </div>
     </div>
-
-    <form wire:submit="send" class="mt-4 flex items-end gap-2">
-        <flux:input wire:model="draft" :placeholder="__('Pergunte algo ao agente...')" class="flex-1" data-test="chat-input" />
-        <flux:button type="submit" variant="primary" icon="paper-airplane" data-test="chat-send">{{ __('Enviar') }}</flux:button>
-    </form>
 </section>
