@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
+if (app()->environment('local')) {
+    Route::view('/_dev/ui-kit', 'dev.ui-kit')->name('dev.ui-kit');
+}
+
 Route::prefix('{current_organization}')
     ->middleware(['auth', 'verified', EnsureOrganizationMembership::class])
     ->group(function () {
