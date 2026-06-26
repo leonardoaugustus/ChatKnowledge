@@ -15,6 +15,7 @@ Route::prefix('{current_organization}')
         Route::view('dashboard', 'dashboard')->name('dashboard');
 
         Route::livewire('agents/{agent}/edit', 'pages::agent.edit')->name('agents.edit');
+        Route::livewire('agents/{agent}/training', 'pages::training.upload')->name('training.upload');
     });
 
 Route::middleware(['auth'])->group(function () {

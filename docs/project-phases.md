@@ -121,7 +121,7 @@
 ## Phase 4 — Training: Upload & AI Extraction
 
 ### 4.1 — Document Upload
-- [ ] **4.1.1** Upload screen accepting PDF, DOCX, TXT, Markdown, and plain text. Creates a `Document` (`DocumentStatus::Uploaded`) scoped to agent + organization. _No audio support in V1._
+- [x] **4.1.1** Upload screen accepting PDF, DOCX, TXT, Markdown, and plain text. Creates a `Document` (`DocumentStatus::Uploaded`) scoped to agent + organization. _No audio support in V1._
   - **Tests:** `tests/Feature/Livewire/Training/UploadTest.php` — `it accepts each supported format`; `it rejects unsupported types`; `it creates a document scoped to the agent and organization`; `it stores the raw material`.
 
 ### 4.2 — Extractor Agent (async)
