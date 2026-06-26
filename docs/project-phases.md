@@ -41,7 +41,7 @@
 
 ## Phase 0 — Foundations & Tooling
 
-- [ ] **0.1** Project bootstrapped from the official Livewire starter kit (Laravel 13 + Livewire 4 + Flux UI free + Fortify), with **Teams enabled** and **Laravel Boost** installed. Rename the Teams concept to **Organization** throughout.
+- [x] **0.1** Project bootstrapped from the official Livewire starter kit (Laravel 13 + Livewire 4 + Flux UI free + Fortify), with **Teams enabled** and **Laravel Boost** installed. Rename the Teams concept to **Organization** throughout.
   - **Tests:** _none — scaffolding only._
 - [ ] **0.2** Configure services: `config/services.php` blocks for `openai` (`api_key`) and `stripe`. Add `.env.example` entries. Postgres + Redis + Horizon configured.
   - **Tests:** _none — configuration only._

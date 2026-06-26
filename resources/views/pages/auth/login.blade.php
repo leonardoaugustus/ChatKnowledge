@@ -5,8 +5,8 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        @if ($teamInvitation)
-            <x-team-invitation-alert :invitation="$teamInvitation" :action="__('Log in')" />
+        @if ($organizationInvitation)
+            <x-organization-invitation-alert :invitation="$organizationInvitation" :action="__('Log in')" />
         @endif
 
         <x-passkey-verify />
@@ -58,7 +58,7 @@
         <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
             <span>{{ __('Don\'t have an account?') }}</span>
             <flux:link
-                :href="$teamInvitation ? route('register', ['invitation' => $teamInvitation['code']]) : route('register')"
+                :href="$organizationInvitation ? route('register', ['invitation' => $organizationInvitation['code']]) : route('register')"
                 data-test="register-link"
                 wire:navigate
             >

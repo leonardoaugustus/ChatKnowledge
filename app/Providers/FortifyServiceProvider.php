@@ -9,7 +9,7 @@ use App\Http\Responses\PasskeyLoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Http\Responses\TwoFactorLoginResponse;
 use App\Http\Responses\VerifyEmailResponse;
-use App\Models\TeamInvitation;
+use App\Models\OrganizationInvitation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -61,13 +61,13 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureViews(): void
     {
         Fortify::loginView(fn (Request $request) => view('pages::auth.login', [
-            'teamInvitation' => $this->teamInvitation($request),
+            'organizationInvitation' => $this->organizationInvitation($request),
         ]));
         Fortify::verifyEmailView(fn () => view('pages::auth.verify-email'));
         Fortify::twoFactorChallengeView(fn () => view('pages::auth.two-factor-challenge'));
         Fortify::confirmPasswordView(fn () => view('pages::auth.confirm-password'));
         Fortify::registerView(fn (Request $request) => view('pages::auth.register', [
-            'teamInvitation' => $this->teamInvitation($request),
+            'organizationInvitation' => $this->organizationInvitation($request),
         ]));
         Fortify::resetPasswordView(fn () => view('pages::auth.reset-password'));
         Fortify::requestPasswordResetLinkView(fn () => view('pages::auth.forgot-password'));
@@ -98,11 +98,11 @@ class FortifyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the pending team invitation context for auth pages.
+     * Get the pending organization invitation context for auth pages.
      *
-     * @return array{code: string, teamName: string}|null
+     * @return array{code: string, organizationName: string}|null
      */
-    private function teamInvitation(Request $request): ?array
+    private function organizationInvitation(Request $request): ?array
     {
         $invitationCode = $request->query('invitation');
 
@@ -110,8 +110,8 @@ class FortifyServiceProvider extends ServiceProvider
             return null;
         }
 
-        $invitation = TeamInvitation::query()
-            ->with('team')
+        $invitation = OrganizationInvitation::query()
+            ->with('organization')
             ->where('code', $invitationCode)
             ->whereNull('accepted_at')
             ->where(fn ($query) => $query
@@ -125,7 +125,7 @@ class FortifyServiceProvider extends ServiceProvider
 
         return [
             'code' => $invitation->code,
-            'teamName' => $invitation->team->name,
+            'organizationName' => $invitation->organization->name,
         ];
     }
 }

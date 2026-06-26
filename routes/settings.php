@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Middleware\EnsureTeamMembership;
+use App\Http\Middleware\EnsureOrganizationMembership;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -24,10 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         )
         ->name('security.edit');
 
-    Route::livewire('settings/teams', 'pages::teams.index')->name('teams.index');
+    Route::livewire('settings/organizations', 'pages::organizations.index')->name('organizations.index');
 
-    Route::middleware(EnsureTeamMembership::class)->group(function () {
-        Route::livewire('settings/teams/{team}', 'pages::teams.edit')->name('teams.edit');
+    Route::middleware(EnsureOrganizationMembership::class)->group(function () {
+        Route::livewire('settings/organizations/{organization}', 'pages::organizations.edit')->name('organizations.edit');
     });
 });
 

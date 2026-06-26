@@ -41,10 +41,10 @@
                 </flux:tooltip>
             </flux:navbar>
 
-            <x-desktop-user-menu :showTeam="false" />
+            <x-desktop-user-menu :showOrganization="false" />
 
             <div class="max-lg:hidden">
-                <livewire:team-switcher />
+                <livewire:organization-switcher />
             </div>
         </flux:header>
 
@@ -55,7 +55,7 @@
                 <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
             </flux:sidebar.header>
 
-            <livewire:team-switcher />
+            <livewire:organization-switcher />
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Platform')">
@@ -79,7 +79,7 @@
 
         {{ $slot }}
 
-        <livewire:create-team-modal />
+        <livewire:create-organization-modal />
 
         @persist('toast')
             <flux:toast.group>
