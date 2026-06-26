@@ -109,7 +109,7 @@
   - **Tests:** `tests/Feature/Agent/AgentTest.php` — `it creates an agent scoped to the active organization`; `it stores all personality sections`; `agents from another organization are not visible`; `it caps agents per organization if a limit is set`; `it recompiles compiled_system_prompt when any section changes`; `compiled_system_prompt matches the composition of the sections`.
 
 ### 3.2 — Personality Builder UI
-- [ ] **3.2.1** Livewire full-page builder (`pages::agent.edit`) with structured sections (Identity, Personality/Soul, Objective, Tone, Rules, Heartbeat, Bootstrap, User, Tools) — Form Object, no raw-prompt textarea. Assembles the system prompt from sections and persists it to `compiled_system_prompt` on save.
+- [x] **3.2.1** Livewire full-page builder (`pages::agent.edit`) with structured sections (Identity, Personality/Soul, Objective, Tone, Rules, Heartbeat, Bootstrap, User, Tools) — Form Object, no raw-prompt textarea. Assembles the system prompt from sections and persists it to `compiled_system_prompt` on save.
   - **Tests:** `tests/Feature/Livewire/Agent/BuilderTest.php` — `it validates required sections`; `it persists each section`; `it assembles a system prompt from the sections`; `it renders sections as markdown preview`; `it recompiles compiled_system_prompt after editing a section`.
 
 ### 3.3 — Vector Store Provisioning

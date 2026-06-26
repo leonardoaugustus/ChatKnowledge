@@ -14,9 +14,12 @@ class SystemPromptCompiler
     public const SECTIONS = [
         'identity' => 'Identity',
         'soul' => 'Soul',
-        'user' => 'User',
-        'bootstrap' => 'Bootstrap',
+        'objective' => 'Objective',
+        'tone' => 'Tone',
+        'rules' => 'Rules',
         'heartbeat' => 'Heartbeat',
+        'bootstrap' => 'Bootstrap',
+        'user' => 'User',
         'tools' => 'Tools',
     ];
 
