@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Concerns;
 
+use App\Actions\Organizations\CreateOrganization;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -23,9 +24,23 @@ trait RedirectsToCurrentOrganization
 
         abort_if(! $user, 403);
 
-        $organization = $user->currentOrganization ?? $user->personalOrganization();
+        $organization = $user->currentOrganization;
 
-        abort_if(! $organization, 403);
+        if (! $organization || ! $user->belongsToOrganization($organization)) {
+            $organization = $user->personalOrganization() ?? $user->fallbackOrganization();
+        }
+
+        // Self-heal users who somehow have no organization (e.g. created outside
+        // the onboarding flow) by provisioning their personal organization.
+        $organization ??= app(CreateOrganization::class)->handle(
+            $user,
+            $user->name."'s Organization",
+            isPersonal: true,
+        );
+
+        if (! $user->isCurrentOrganization($organization)) {
+            $user->switchOrganization($organization);
+        }
 
         return $organization;
     }

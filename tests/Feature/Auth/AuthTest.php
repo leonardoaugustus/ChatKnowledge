@@ -39,3 +39,21 @@ it('requires authentication for app routes', function () {
 
     $this->assertGuest();
 });
+
+it('provisions an organization for an org-less user on login', function () {
+    $user = User::factory()->create();
+    $user->organizations()->detach();
+    $user->forceFill(['current_organization_id' => null])->save();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirectContains('/dashboard')
+        ->assertSessionHasNoErrors();
+
+    $user->refresh();
+
+    expect($user->current_organization_id)->not->toBeNull()
+        ->and($user->organizations()->count())->toBe(1)
+        ->and($user->currentOrganization)->not->toBeNull();
+});
