@@ -2,6 +2,10 @@
 @import '../../vendor/livewire/flux/dist/flux.css';
 
 @source '../views';
+
+/* Bar widgets build `bg-{color}-500` dynamically from enum color() tokens, so
+   safelist the status palette the scanner can't see in the markup. */
+@source inline('bg-{brand,green,amber,red,blue,cyan,lime,zinc,indigo}-500');
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
