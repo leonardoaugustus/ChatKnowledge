@@ -153,7 +153,7 @@
   - **Tests:** `tests/Feature/Publishing/PublishTest.php` (faked) — `it pushes only approved items`; `it never pushes pending or rejected items`; `it attaches knowledge_type and source metadata`; `it targets the agent's own vector store`; `publishing is incremental (one item at a time)`; `it never re-sends the whole document`; `publishing is async`.
 - [x] **6.1.2** Re-publish / update: editing an approved+published item re-syncs only that item.
   - **Tests:** `it re-syncs an edited published item`; `it removes the item from the store when deleted`.
-- [ ] **6.1.3** Simple versioning of Knowledge Items: when an already-published item is edited, create a new version, keep the history, and republish **only that item** — never re-send the whole document to the Vector Store.
+- [x] **6.1.3** Simple versioning of Knowledge Items: when an already-published item is edited, create a new version, keep the history, and republish **only that item** — never re-send the whole document to the Vector Store.
   - **Tests:** `tests/Feature/Publishing/KnowledgeItemVersioningTest.php` (faked) — `it creates a new version when a published item is edited`; `it keeps the previous versions in history`; `it republishes only the edited item`; `it never re-sends the whole document to the vector store`.
 
 ---

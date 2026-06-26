@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -82,6 +83,16 @@ class KnowledgeItem extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Get the historical versions of the item.
+     *
+     * @return HasMany<KnowledgeItemVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(KnowledgeItemVersion::class);
     }
 
     /**

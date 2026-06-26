@@ -8,6 +8,7 @@ use App\Enums\PublicationStatus;
 use App\Jobs\PublishKnowledgeItem;
 use App\Models\Agent;
 use App\Models\KnowledgeItem;
+use App\Models\KnowledgeItemVersion;
 use App\Models\User;
 use Illuminate\Support\Arr;
 
@@ -20,14 +21,39 @@ class CurationService
      */
     public function update(KnowledgeItem $item, array $attributes): KnowledgeItem
     {
-        $item->update(Arr::only($attributes, ['title', 'content', 'summary']));
+        $isPublished = $item->publication_status === PublicationStatus::Published;
 
-        // Editing an already-published item re-syncs only that item.
-        if ($item->publication_status === PublicationStatus::Published) {
+        // Editing an already-published item snapshots the current state into
+        // history and bumps the version before applying the edit.
+        if ($isPublished) {
+            $this->snapshotVersion($item);
+            $attributes['version'] = $item->version + 1;
+        }
+
+        $item->update(Arr::only($attributes, ['title', 'content', 'summary', 'version']));
+
+        // Re-sync only that item to the vector store.
+        if ($isPublished) {
             PublishKnowledgeItem::dispatch($item);
         }
 
         return $item;
+    }
+
+    /**
+     * Snapshot the item's current state as a historical version.
+     */
+    protected function snapshotVersion(KnowledgeItem $item): void
+    {
+        KnowledgeItemVersion::create([
+            'organization_id' => $item->organization_id,
+            'knowledge_item_id' => $item->id,
+            'version' => $item->version,
+            'type' => $item->type,
+            'title' => $item->title,
+            'content' => $item->content,
+            'summary' => $item->summary,
+        ]);
     }
 
     /**
