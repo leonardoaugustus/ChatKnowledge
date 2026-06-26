@@ -149,7 +149,7 @@
 > **Publishing rules:** Only **approved** items are sent to the Vector Store. Publishing is **incremental** — an update synchronizes only the changed item, never re-sending the whole document to the Vector Store.
 
 ### 6.1 — Publish Approved Knowledge
-- [ ] **6.1.1** Async Horizon job pushes **only approved** knowledge items to the agent's Vector Store (with metadata: `knowledge_type`, `source`, `approved_by`). Marks items as published.
+- [x] **6.1.1** Async Horizon job pushes **only approved** knowledge items to the agent's Vector Store (with metadata: `knowledge_type`, `source`, `approved_by`). Marks items as published.
   - **Tests:** `tests/Feature/Publishing/PublishTest.php` (faked) — `it pushes only approved items`; `it never pushes pending or rejected items`; `it attaches knowledge_type and source metadata`; `it targets the agent's own vector store`; `publishing is incremental (one item at a time)`; `it never re-sends the whole document`; `publishing is async`.
 - [ ] **6.1.2** Re-publish / update: editing an approved+published item re-syncs only that item.
   - **Tests:** `it re-syncs an edited published item`; `it removes the item from the store when deleted`.

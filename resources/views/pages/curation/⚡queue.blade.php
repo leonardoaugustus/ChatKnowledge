@@ -5,6 +5,7 @@ use App\Enums\Role;
 use App\Livewire\Forms\ManualFaqForm;
 use App\Models\Agent;
 use App\Models\KnowledgeItem;
+use App\Services\Ai\PublishingService;
 use App\Services\Curation\CurationService;
 use Flux\Flux;
 use Illuminate\Support\Collection;
@@ -105,6 +106,18 @@ new #[Title('Curadoria')] class extends Component
         unset($this->groupedItems);
     }
 
+    public function publishApproved(PublishingService $publishingService): void
+    {
+        abort_unless(
+            auth()->user()->organizationRole($this->agent->organization) === Role::Admin,
+            403,
+        );
+
+        $publishingService->publishApproved($this->agent);
+
+        Flux::toast(variant: 'success', text: __('Publicando itens aprovados.'));
+    }
+
     public function createManualFaq(CurationService $curationService): void
     {
         abort_unless(
@@ -142,6 +155,7 @@ new #[Title('Curadoria')] class extends Component
 <section class="w-full">
     <x-page-header :title="__('Curadoria')" :description="$agent->name">
         <x-slot:actions>
+            <flux:button icon="cloud-arrow-up" wire:click="publishApproved" data-test="publish-approved">{{ __('Publicar aprovados') }}</flux:button>
             <flux:modal.trigger name="manual-faq">
                 <flux:button variant="primary" icon="plus" data-test="manual-faq-trigger">{{ __('FAQ manual') }}</flux:button>
             </flux:modal.trigger>
