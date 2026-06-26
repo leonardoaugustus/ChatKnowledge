@@ -65,6 +65,16 @@ class Agent extends Model
     }
 
     /**
+     * Get the configurable HTTP tools available to the agent.
+     *
+     * @return HasMany<AgentTool, $this>
+     */
+    public function agentTools(): HasMany
+    {
+        return $this->hasMany(AgentTool::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

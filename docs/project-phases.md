@@ -179,7 +179,7 @@
 > Tools remain part of V1: the CRUD and current architecture are kept. The architecture MUST stay prepared for integration with ERP, CRM, external APIs, and internal systems, without limiting future integrations.
 
 ### 9.1 — Tool Definitions
-- [ ] **9.1.1** `agent_tools` (name, endpoint, method, headers, auth, input/output schemas) scoped to agent. CRUD UI.
+- [x] **9.1.1** `agent_tools` (name, endpoint, method, headers, auth, input/output schemas) scoped to agent. CRUD UI.
   - **Tests:** `tests/Feature/Tools/ToolDefinitionTest.php` — `it creates an HTTP tool scoped to the agent`; `it validates the schema`; `tools from another organization are not visible`.
 
 ### 9.2 — Tool Execution

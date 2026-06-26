@@ -18,6 +18,7 @@ Route::prefix('{current_organization}')
         Route::livewire('agents/{agent}/training', 'pages::training.upload')->name('training.upload');
         Route::livewire('agents/{agent}/curation', 'pages::curation.queue')->name('curation.queue');
         Route::livewire('agents/{agent}/chat', 'pages::chat.index')->name('chat.show');
+        Route::livewire('agents/{agent}/tools', 'pages::tools.index')->name('tools.show');
     });
 
 Route::middleware(['auth'])->group(function () {
