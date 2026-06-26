@@ -208,7 +208,7 @@
   - **Tests:** `tests/Arch/TenantIsolationTest.php` — `every model using BelongsToOrganization has a corresponding isolation test`.
 - [x] **11.5** AI audit logs: record logs for `extraction`, `publishing`, `chat`, and `tool execution`, capturing `latency`, `tokens`, `estimated cost`, and `errors`. These logs serve auditing and debugging purposes.
   - **Tests:** `tests/Feature/Audit/AiLogTest.php` — `it logs an extraction event with latency, tokens and estimated cost`; `it logs a publishing event`; `it logs a chat event`; `it logs a tool execution event`; `it logs errors`.
-- [ ] **11.6** Full-suite green run: `php artisan test --compact` (delegated to the `test-runner` subagent) must pass before release.
+- [x] **11.6** Full-suite green run: `php artisan test --compact` (delegated to the `test-runner` subagent) must pass before release.
   - **Tests:** _N/A — gate._
 
 ---
