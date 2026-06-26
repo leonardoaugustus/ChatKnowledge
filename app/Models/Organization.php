@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laravel\Cashier\Billable;
 
 /**
  * @property int $id
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
 class Organization extends Model
 {
     /** @use HasFactory<OrganizationFactory> */
-    use GeneratesUniqueOrganizationSlugs, HasFactory, SoftDeletes;
+    use Billable, GeneratesUniqueOrganizationSlugs, HasFactory, SoftDeletes;
 
     /**
      * Bootstrap the model and its traits.

@@ -93,7 +93,7 @@
 
 > The platform offers a single plan at US$18/mo. The plan has **limits configurable by the platform administrator** (users, agents, questions, storage, documents, etc.) defined via configuration — not hardcoded. There is **no overage billing in V1**, only consumption measurement.
 
-- [ ] **2.5.1** Subscribe the active organization to the single fixed plan (US$18/mo) via Cashier checkout; handle Stripe webhooks (created/updated/canceled). Plan limits are read from configuration (admin-configurable), not hardcoded.
+- [x] **2.5.1** Subscribe the active organization to the single fixed plan (US$18/mo) via Cashier checkout; handle Stripe webhooks (created/updated/canceled). Plan limits are read from configuration (admin-configurable), not hardcoded.
   - **Tests:** `tests/Feature/Billing/SubscriptionTest.php` — `it subscribes the organization to the fixed plan`; `it reflects subscription status from webhooks`; `the Billable lives on Organization not User`; `it reads plan limits from configuration`.
 - [ ] **2.5.2** `EnsureSubscribed` middleware gating app features when not active (read-only / blocked per policy).
   - **Tests:** `tests/Feature/Billing/EnsureSubscribedTest.php` — `it blocks gated routes without an active subscription`; `it allows access while subscribed`.
