@@ -82,7 +82,7 @@
   - **Tests:** `tests/Feature/Auth/AuthTest.php` — `it registers and lands authenticated with an organization`; `it logs in an existing user`; `it requires authentication for app routes`.
 
 ### 2.3 — Organization Switching
-- [ ] **2.3.1** Action to switch active organization (updates `current_organization_id` after membership check).
+- [x] **2.3.1** Action to switch active organization (updates `current_organization_id` after membership check).
   - **Tests:** `tests/Feature/Organization/SwitchOrganizationTest.php` — `it switches to an organization the user belongs to`; `it rejects switching to an organization the user does not belong to`; `it re-scopes data after switching`.
 
 ### 2.4 — Member Invitations
