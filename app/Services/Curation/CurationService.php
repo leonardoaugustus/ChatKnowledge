@@ -41,6 +41,48 @@ class CurationService
     }
 
     /**
+     * Record an unanswered chat question as a Pending curation gap for the
+     * agent so a curator can fill the knowledge base. Identical questions are
+     * deduplicated (the existing gap's asked_count is incremented instead).
+     */
+    public function recordGap(Agent $agent, string $question): KnowledgeItem
+    {
+        $hash = sha1(str($question)->squish()->lower()->value());
+
+        $existing = $agent->knowledgeItems()
+            ->where('curation_status', CurationStatus::Pending->value)
+            ->where('metadata->gap', true)
+            ->where('metadata->question_hash', $hash)
+            ->first();
+
+        if ($existing) {
+            $metadata = $existing->metadata;
+            $metadata['asked_count'] = ($metadata['asked_count'] ?? 1) + 1;
+            $existing->update(['metadata' => $metadata]);
+
+            return $existing;
+        }
+
+        return KnowledgeItem::create([
+            'organization_id' => $agent->organization_id,
+            'agent_id' => $agent->id,
+            'source_document_id' => null,
+            'type' => KnowledgeType::Faq,
+            'title' => $question,
+            'content' => 'Pergunta sem resposta na base de conhecimento: '.$question,
+            'curation_status' => CurationStatus::Pending,
+            'publication_status' => PublicationStatus::Unpublished,
+            'version' => 1,
+            'metadata' => [
+                'gap' => true,
+                'question' => $question,
+                'question_hash' => $hash,
+                'asked_count' => 1,
+            ],
+        ]);
+    }
+
+    /**
      * Snapshot the item's current state as a historical version.
      */
     protected function snapshotVersion(KnowledgeItem $item): void

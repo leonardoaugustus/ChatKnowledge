@@ -7,8 +7,10 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Services\Ai\ChatService;
 use App\Services\Billing\UsageRecorder;
+use App\Services\Curation\CurationService;
 use App\Support\ActiveOrganization;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Streaming\Events\Citation;
 use Laravel\Ai\Streaming\Events\TextDelta;
 use Livewire\Attributes\Computed;
@@ -55,7 +57,7 @@ new #[Title('Chat')] class extends Component
         return $this->conversation?->messages()->oldest()->get() ?? new Collection;
     }
 
-    public function send(ChatService $chat, UsageRecorder $usage): void
+    public function send(ChatService $chat, UsageRecorder $usage, CurationService $curation): void
     {
         $this->validate();
         $this->confirmAgentBelongsToActiveOrganization($this->agent);
@@ -101,6 +103,14 @@ new #[Title('Chat')] class extends Component
         ]);
 
         $usage->record($this->agent->organization, UsageType::Question, agentId: $this->agent->id);
+
+        // When the agent couldn't answer from its knowledge base, log the gap
+        // and push it into the curation queue.
+        if (trim($text) === ChatService::NO_KNOWLEDGE_MESSAGE) {
+            Log::info('Unanswered agent question', ['agent_id' => $this->agent->id, 'question' => $question]);
+
+            $curation->recordGap($this->agent, $question);
+        }
 
         $this->reset('draft', 'progress');
         unset($this->conversation, $this->chatMessages);

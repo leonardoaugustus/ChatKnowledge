@@ -169,7 +169,7 @@
   - **Tests:** `tests/Feature/Livewire/Chat/AntiHallucinationTest.php` (faked) — `it renders the source(s) for an answer`; `it returns the no-knowledge message when FileSearch finds nothing`; `it never answers from outside the vector store`.
 
 ### 7.3 — Unanswered → Curation Queue
-- [ ] **7.3.1** Questions with no sufficient answer are logged and pushed automatically into the curation queue as gaps.
+- [x] **7.3.1** Questions with no sufficient answer are logged and pushed automatically into the curation queue as gaps.
   - **Tests:** `tests/Feature/Chat/UnansweredToCurationTest.php` — `it records an unanswered question`; `it creates a curation gap item scoped to the agent`; `it does not duplicate identical gaps`.
 
 ---
