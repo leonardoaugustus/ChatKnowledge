@@ -1,6 +1,12 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Ai\Gateway\FakeStoreGateway;
+use Laravel\Ai\Gateway\FakeTextGateway;
+use Laravel\Ai\Stores;
 use Tests\TestCase;
 
 /*
@@ -44,7 +50,67 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Attach the user to the organization with the given role and make it active.
+ */
+function withActiveOrganization(User $user, Organization $organization, Role $role = Role::Admin): User
 {
-    // ..
+    if (! $user->belongsToOrganization($organization)) {
+        $organization->members()->attach($user, ['role' => $role->value]);
+    }
+
+    $user->switchOrganization($organization);
+
+    return $user;
+}
+
+/**
+ * Authenticate as an Admin (manager) of the given or a freshly created organization.
+ */
+function actingAsManager(?Organization $organization = null): User
+{
+    $user = User::factory()->create();
+
+    if ($organization) {
+        withActiveOrganization($user, $organization, Role::Admin);
+    }
+
+    test()->actingAs($user);
+
+    return $user;
+}
+
+/**
+ * Authenticate as a Colaborador of the given or a freshly created organization.
+ */
+function actingAsCollaborator(?Organization $organization = null): User
+{
+    $organization ??= Organization::factory()->create();
+
+    $user = withActiveOrganization(User::factory()->create(), $organization, Role::Colaborador);
+
+    test()->actingAs($user);
+
+    return $user;
+}
+
+/**
+ * Bind the Laravel AI SDK fake for the given agent class.
+ *
+ * @param  class-string  $agent
+ * @param  Closure|array<int, mixed>  $responses
+ */
+function fakeAi(string $agent, Closure|array $responses = []): FakeTextGateway
+{
+    return $agent::fake($responses);
+}
+
+/**
+ * Bind the Laravel AI SDK vector store fake (file operations are faked too).
+ *
+ * @param  Closure|array<int, mixed>  $responses
+ */
+function fakeVectorStore(Closure|array $responses = []): FakeStoreGateway
+{
+    return Stores::fake($responses);
 }

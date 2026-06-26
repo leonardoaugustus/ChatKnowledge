@@ -52,7 +52,7 @@
   - `tests/Feature/Tenancy/BelongsToOrganizationTest.php` — `it auto-fills organization_id on create`; `it scopes queries to the active organization`; `it never returns records from another organization`.
 - [x] **0.5** `EnsureActiveOrganization` middleware — validates the user belongs to `current_organization_id` via the pivot; falls back / redirects otherwise.
   - **Tests:** `tests/Feature/Tenancy/EnsureActiveOrganizationTest.php` — `it passes when membership is valid`; `it falls back when current_organization_id is stale`; `it never proceeds with an organization the user does not belong to`.
-- [ ] **0.6** Pest base helpers in `tests/Pest.php`: `actingAsManager()`, `actingAsCollaborator()`, `withActiveOrganization()`, `fakeAi()` (binds the Laravel AI SDK fake), `fakeVectorStore()`.
+- [x] **0.6** Pest base helpers in `tests/Pest.php`: `actingAsManager()`, `actingAsCollaborator()`, `withActiveOrganization()`, `fakeAi()` (binds the Laravel AI SDK fake), `fakeVectorStore()`.
   - **Tests:** _none — used indirectly everywhere._
 
 ---
