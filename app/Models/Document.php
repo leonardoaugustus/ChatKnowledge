@@ -30,7 +30,7 @@ use Illuminate\Support\Carbon;
  * @property-read Organization $organization
  * @property-read Agent $agent
  */
-#[Fillable(['organization_id', 'agent_id', 'name', 'format', 'status', 'disk', 'path', 'size', 'version'])]
+#[Fillable(['organization_id', 'agent_id', 'name', 'format', 'status', 'error', 'disk', 'path', 'size', 'version'])]
 class Document extends Model
 {
     /** @use HasFactory<DocumentFactory> */

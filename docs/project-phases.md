@@ -198,7 +198,7 @@
 
 ## Phase 11 — Cross-Cutting & Hardening
 
-- [ ] **11.1** Global error handling for AI/OpenAI failures (extraction, publishing, chat) — user-facing messages, retriable jobs, logged error codes.
+- [x] **11.1** Global error handling for AI/OpenAI failures (extraction, publishing, chat) — user-facing messages, retriable jobs, logged error codes.
   - **Tests:** `tests/Feature/ErrorHandling/AiFailureTest.php` — `it surfaces a friendly message on extraction failure`; `it retries the publish job on transient failure`; `it logs but does not display raw provider errors`.
 - [ ] **11.2** Authorization policies (Admin vs Collaborator) across agents, training, curation, tools, billing.
   - **Tests:** `tests/Feature/Authorization/PolicyTest.php` — `a collaborator cannot curate, manage agents, or change billing`; `a collaborator can chat`; `an admin can do all of the above`.

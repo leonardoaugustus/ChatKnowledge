@@ -81,26 +81,48 @@ new #[Title('Chat')] class extends Component
         $this->progress = [];
         $events = [];
         $text = '';
+        $failed = false;
 
-        foreach ($chat->answer($this->agent, $question, $history) as $event) {
-            $events[] = $event;
+        try {
+            foreach ($chat->answer($this->agent, $question, $history) as $event) {
+                $events[] = $event;
 
-            if ($label = $chat->progressLabel($event)) {
-                $this->progress[] = $label;
-                $this->stream(to: 'progress', content: $label, replace: true);
+                if ($label = $chat->progressLabel($event)) {
+                    $this->progress[] = $label;
+                    $this->stream(to: 'progress', content: $label, replace: true);
+                }
+
+                if ($event instanceof TextDelta) {
+                    $text .= $event->delta;
+                    $this->stream(to: 'answer', content: $text, replace: true);
+                }
             }
+        } catch (\Throwable $e) {
+            // Never surface raw provider errors to the user — log and reply with
+            // a friendly message instead.
+            Log::error('Chat answer failed', [
+                'agent_id' => $this->agent->id,
+                'code' => $e->getCode(),
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
 
-            if ($event instanceof TextDelta) {
-                $text .= $event->delta;
-                $this->stream(to: 'answer', content: $text, replace: true);
-            }
+            $failed = true;
+            $text = ChatService::FAILURE_MESSAGE;
         }
 
         $conversation->messages()->create([
             'role' => MessageRole::Assistant,
             'content' => $text,
-            'sources' => $this->sourcesFrom($events),
+            'sources' => $failed ? [] : $this->sourcesFrom($events),
         ]);
+
+        if ($failed) {
+            $this->reset('draft', 'progress');
+            unset($this->conversation, $this->chatMessages);
+
+            return;
+        }
 
         $usage->record($this->agent->organization, UsageType::Question, agentId: $this->agent->id);
 

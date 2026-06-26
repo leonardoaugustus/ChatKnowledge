@@ -9,11 +9,18 @@ use App\Enums\KnowledgeType;
 use App\Enums\PublicationStatus;
 use App\Models\Document;
 use App\Models\KnowledgeItem;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class KnowledgeExtractionService
 {
+    /**
+     * The user-facing message shown when extraction fails. Raw provider errors
+     * are never surfaced to the user — only logged.
+     */
+    public const FAILURE_MESSAGE = 'Não foi possível processar este documento. Tente novamente em instantes.';
+
     /**
      * Run the extractor over the document's raw material and persist the
      * resulting knowledge items as Pending for curation. Updates the document
@@ -32,9 +39,17 @@ class KnowledgeExtractionService
                 $this->createItem($document, $item);
             }
 
-            $document->update(['status' => DocumentStatus::Extracted]);
+            $document->update(['status' => DocumentStatus::Extracted, 'error' => null]);
         } catch (Throwable $e) {
-            $document->update(['status' => DocumentStatus::Failed]);
+            Log::error('Knowledge extraction failed', [
+                'document_id' => $document->id,
+                'organization_id' => $document->organization_id,
+                'code' => $e->getCode(),
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            $document->update(['status' => DocumentStatus::Failed, 'error' => self::FAILURE_MESSAGE]);
 
             throw $e;
         }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Concerns\RetriesAiFailures;
 use App\Models\Agent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -9,7 +10,7 @@ use Laravel\Ai\Stores;
 
 class ProvisionAgentVectorStore implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, RetriesAiFailures;
 
     public function __construct(public Agent $agent) {}
 

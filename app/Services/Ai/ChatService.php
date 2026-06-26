@@ -21,6 +21,12 @@ class ChatService
     public const NO_KNOWLEDGE_MESSAGE = 'Não encontrei essa informação na base de conhecimento deste agente.';
 
     /**
+     * The user-facing message shown when the chat fails. Raw provider errors are
+     * never surfaced to the user — only logged.
+     */
+    public const FAILURE_MESSAGE = 'Ocorreu um erro ao gerar a resposta. Tente novamente em instantes.';
+
+    /**
      * Stream an answer from the agent over its own vector store (native
      * streaming — never synchronous).
      *

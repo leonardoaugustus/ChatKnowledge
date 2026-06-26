@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Concerns\RetriesAiFailures;
 use App\Models\Document;
 use App\Services\Ai\KnowledgeExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,7 +10,7 @@ use Illuminate\Foundation\Queue\Queueable;
 
 class ExtractKnowledgeFromDocument implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, RetriesAiFailures;
 
     public function __construct(public Document $document) {}
 
