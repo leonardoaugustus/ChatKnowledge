@@ -97,4 +97,12 @@ class OrganizationPolicy
     {
         return ! $organization->is_personal && $user->hasOrganizationPermission($organization, OrganizationPermission::DeleteOrganization);
     }
+
+    /**
+     * Only an Admin may manage the organization's billing.
+     */
+    public function manageBilling(User $user, Organization $organization): bool
+    {
+        return $user->ownsOrganization($organization);
+    }
 }

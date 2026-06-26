@@ -5,6 +5,7 @@ use App\Models\Agent;
 use App\Models\AgentConfig;
 use App\Services\Ai\SystemPromptCompiler;
 use Flux\Flux;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -17,6 +18,8 @@ new #[Title('Personality Builder')] class extends Component
 
     public function mount(Agent $agent): void
     {
+        Gate::authorize('update', $agent);
+
         $this->agent = $agent;
         $this->form->setAgent($agent);
     }

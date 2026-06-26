@@ -4,6 +4,7 @@ use App\Actions\Training\StoreDocument;
 use App\Models\Agent;
 use Flux\Flux;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
@@ -21,6 +22,8 @@ new #[Title('Treinamento')] class extends Component
 
     public function mount(Agent $agent): void
     {
+        Gate::authorize('train', $agent);
+
         $this->agent = $agent;
     }
 
