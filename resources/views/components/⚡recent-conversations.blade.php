@@ -101,9 +101,31 @@ new class extends Component
     {
         return Conversation::with('agent')
             ->where('user_id', Auth::id())
-            ->latest()
+            ->latest('updated_at')
             ->take($this->limit + 1)
             ->get();
+    }
+
+    /**
+     * The visible conversations grouped into Hoje / Ontem / Anteriores.
+     *
+     * @return Collection<string, Collection<int, Conversation>>
+     */
+    #[Computed]
+    public function groups(): Collection
+    {
+        $today = now()->startOfDay();
+        $yesterday = $today->copy()->subDay();
+
+        return $this->items->take($this->limit)->groupBy(function (Conversation $conversation) use ($today, $yesterday) {
+            $date = ($conversation->updated_at ?? $conversation->created_at)->copy()->startOfDay();
+
+            return match (true) {
+                $date->greaterThanOrEqualTo($today) => __('Hoje'),
+                $date->greaterThanOrEqualTo($yesterday) => __('Ontem'),
+                default => __('Anteriores'),
+            };
+        });
     }
 
     public function hasMore(): bool
@@ -121,7 +143,10 @@ new class extends Component
     <div class="px-2 pb-1 text-2xs font-semibold uppercase tracking-wide text-zinc-400">{{ __('Recentes') }}</div>
 
     <div x-data x-ref="scroller" class="flex max-h-72 flex-col gap-0.5 overflow-y-auto px-1" data-test="recent-conversations">
-        @forelse ($this->items->take($this->limit) as $conversation)
+        @forelse ($this->groups as $label => $conversations)
+            <div class="px-2 pb-1 pt-2 text-2xs font-medium uppercase tracking-wide text-zinc-400 first:pt-0" data-test="recent-group">{{ $label }}</div>
+
+            @foreach ($conversations as $conversation)
             <div
                 wire:key="recent-{{ $conversation->id }}"
                 @class([
@@ -163,6 +188,7 @@ new class extends Component
                     </flux:menu>
                 </flux:dropdown>
             </div>
+            @endforeach
         @empty
             <flux:text class="px-2 py-3 text-xs text-zinc-400">{{ __('Sem conversas recentes.') }}</flux:text>
         @endforelse

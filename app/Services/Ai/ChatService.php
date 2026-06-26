@@ -38,6 +38,25 @@ class ChatService
     }
 
     /**
+     * Derive a concise, natural conversation title from the first answer,
+     * falling back to the question when the answer isn't usable (e.g. the
+     * no-knowledge / failure message).
+     */
+    public function titleFromAnswer(string $answer, string $question): string
+    {
+        $answer = trim($answer);
+
+        $source = ($answer === '' || in_array($answer, [self::NO_KNOWLEDGE_MESSAGE, self::FAILURE_MESSAGE], true))
+            ? $question
+            : $answer;
+
+        $firstLine = trim((string) strtok($source, "\n"));
+        $firstLine = trim((string) preg_replace('/[*_`#>]+/', '', $firstLine));
+
+        return str($firstLine !== '' ? $firstLine : $question)->squish()->limit(48)->value();
+    }
+
+    /**
      * Map a streamed execution event to a human progress label, or null when
      * the event carries no execution progress worth surfacing.
      */

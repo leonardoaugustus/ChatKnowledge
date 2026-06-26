@@ -176,6 +176,14 @@ new #[Title('Chat')] class extends Component
             'sources' => $failed ? [] : $this->sourcesFrom($events),
         ]);
 
+        // Name the conversation from its first answer; bump recency so it sorts
+        // to the top of "Recentes".
+        if ($isNewConversation && ! $failed) {
+            $conversation->update(['title' => $chat->titleFromAnswer($text, $question)]);
+        } else {
+            $conversation->touch();
+        }
+
         $this->reset('draft', 'progress');
         unset($this->conversation, $this->chatMessages);
 

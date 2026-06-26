@@ -102,3 +102,18 @@ it('does not rename or delete another user\'s conversation', function () {
     expect($foreign->fresh())->not->toBeNull()
         ->and($foreign->fresh()->title)->toBe('Do outro');
 });
+
+it('groups conversations by Hoje, Ontem and Anteriores', function () {
+    Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
+        ->create(['title' => 'De hoje', 'updated_at' => now()]);
+    Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
+        ->create(['title' => 'De ontem', 'updated_at' => now()->subDay()]);
+    Conversation::factory()->for($this->organization)->for($this->agent)->for($this->user)
+        ->create(['title' => 'Antiga', 'updated_at' => now()->subWeek()]);
+
+    $groups = Livewire::test('recent-conversations')->instance()->groups();
+
+    expect($groups->keys()->all())->toBe(['Hoje', 'Ontem', 'Anteriores'])
+        ->and($groups['Hoje']->first()->title)->toBe('De hoje')
+        ->and($groups['Anteriores']->first()->title)->toBe('Antiga');
+});

@@ -100,3 +100,14 @@ it('surfaces execution progress events while streaming', function () {
     expect($chat->progressLabel(new StreamStart('id', 'openai', 'model', time())))->not->toBeNull()
         ->and($chat->progressLabel(new TextStart('id', 'mid', time())))->not->toBeNull();
 });
+
+it('names a new conversation from the first answer', function () {
+    ChatAgent::fake(['Funcionamos das 9h às 18h.']);
+
+    Livewire::test('pages::chat.index', ['agent' => $this->agent])
+        ->set('draft', 'qual o horario?')
+        ->call('send')
+        ->assertHasNoErrors();
+
+    expect(Conversation::sole()->title)->toBe('Funcionamos das 9h às 18h.');
+});
