@@ -4,6 +4,7 @@ namespace App\Actions\Agents;
 
 use App\Enums\AgentStatus;
 use App\Exceptions\AgentLimitReached;
+use App\Jobs\ProvisionAgentVectorStore;
 use App\Models\Agent;
 use App\Models\Organization;
 use App\Services\Ai\SystemPromptCompiler;
@@ -24,7 +25,7 @@ class CreateAgent
     {
         $this->ensureWithinLimit($organization);
 
-        return DB::transaction(function () use ($organization, $attributes) {
+        $agent = DB::transaction(function () use ($organization, $attributes) {
             $agent = Agent::create([
                 'organization_id' => $organization->id,
                 'name' => $attributes['name'],
@@ -38,6 +39,11 @@ class CreateAgent
 
             return $agent;
         });
+
+        // Provision the agent's dedicated vector store asynchronously (Phase 3.3).
+        ProvisionAgentVectorStore::dispatch($agent);
+
+        return $agent;
     }
 
     /**

@@ -113,7 +113,7 @@
   - **Tests:** `tests/Feature/Livewire/Agent/BuilderTest.php` — `it validates required sections`; `it persists each section`; `it assembles a system prompt from the sections`; `it renders sections as markdown preview`; `it recompiles compiled_system_prompt after editing a section`.
 
 ### 3.3 — Vector Store Provisioning
-- [ ] **3.3.1** On agent creation, async Horizon job provisions a dedicated OpenAI Vector Store and stores `vector_store_id`. Deleting an agent cleans up the store.
+- [x] **3.3.1** On agent creation, async Horizon job provisions a dedicated OpenAI Vector Store and stores `vector_store_id`. Deleting an agent cleans up the store.
   - **Tests:** `tests/Feature/Agent/VectorStoreProvisioningTest.php` (faked) — `it provisions a vector store on agent creation`; `it stores the returned vector_store_id`; `each agent gets its own store`; `it deletes the store when the agent is deleted`.
 
 ---

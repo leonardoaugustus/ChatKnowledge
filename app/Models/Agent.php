@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\AgentStatus;
 use App\Models\Concerns\BelongsToOrganization;
+use App\Observers\AgentObserver;
 use Database\Factories\AgentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -25,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read AgentConfig|null $config
  */
 #[Fillable(['organization_id', 'name', 'status', 'vector_store_id'])]
+#[ObservedBy([AgentObserver::class])]
 class Agent extends Model
 {
     /** @use HasFactory<AgentFactory> */

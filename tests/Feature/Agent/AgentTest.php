@@ -7,8 +7,11 @@ use App\Models\Agent;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\Ai\SystemPromptCompiler;
+use Illuminate\Support\Facades\Queue;
 
 beforeEach(function () {
+    Queue::fake();
+
     $this->user = User::factory()->create();
     $this->organization = $this->user->currentOrganization;
     $this->actingAs($this->user);
