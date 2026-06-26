@@ -78,7 +78,7 @@
   - **Tests:** `tests/Feature/Organization/OnboardingTest.php` — `it creates a default organization on first registration`; `it sets current_organization_id to the new organization`.
 
 ### 2.2 — Authentication (Fortify)
-- [ ] **2.2.1** Confirm Fortify flows (register, login, password reset, verification) work with the Organization onboarding hook.
+- [x] **2.2.1** Confirm Fortify flows (register, login, password reset, verification) work with the Organization onboarding hook.
   - **Tests:** `tests/Feature/Auth/AuthTest.php` — `it registers and lands authenticated with an organization`; `it logs in an existing user`; `it requires authentication for app routes`.
 
 ### 2.3 — Organization Switching
