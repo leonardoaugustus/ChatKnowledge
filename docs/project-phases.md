@@ -86,7 +86,7 @@
   - **Tests:** `tests/Feature/Organization/SwitchOrganizationTest.php` — `it switches to an organization the user belongs to`; `it rejects switching to an organization the user does not belong to`; `it re-scopes data after switching`.
 
 ### 2.4 — Member Invitations
-- [ ] **2.4.1** Invite a user by email to the active organization with a `Role`; accept flow attaches them via the pivot.
+- [x] **2.4.1** Invite a user by email to the active organization with a `Role`; accept flow attaches them via the pivot.
   - **Tests:** `tests/Feature/Organization/InvitationTest.php` — `it invites a user by email with a role`; `it attaches the user on acceptance`; `only an Admin can invite`; `an invitation is scoped to one organization`.
 
 ### 2.5 — Billing (Stripe + Cashier, fixed US$18/mo)
