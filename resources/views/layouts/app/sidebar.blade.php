@@ -20,12 +20,22 @@
                 </flux:sidebar.group>
 
                 <flux:sidebar.group :heading="__('Workspace')" class="grid">
-                    {{-- Training, curation, chat and tools are per-agent and are
-                         reached from an agent's tab nav (see x-agent-nav). --}}
+                    {{-- Chat is open to every member; the management sections
+                         (training/curation/tools) are per-agent and reached from
+                         an agent's tab nav (see x-agent-nav). --}}
+                    <flux:sidebar.item
+                        icon="chat-bubble-left-right"
+                        :href="route('chat.index')"
+                        :current="request()->routeIs('chat.*')"
+                        wire:navigate
+                    >
+                        {{ __('Chat') }}
+                    </flux:sidebar.item>
+
                     <flux:sidebar.item
                         icon="cpu-chip"
                         :href="route('agents.index')"
-                        :current="request()->routeIs('agents.*', 'training.*', 'curation.*', 'chat.*', 'tools.*')"
+                        :current="request()->routeIs('agents.*', 'training.*', 'curation.*', 'tools.*')"
                         wire:navigate
                     >
                         {{ __('Agentes') }}

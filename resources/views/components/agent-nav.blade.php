@@ -1,13 +1,16 @@
 @props(['agent'])
 
 @php
-    $tabs = [
-        ['route' => 'agents.edit', 'label' => __('Builder'), 'icon' => 'adjustments-horizontal'],
-        ['route' => 'training.upload', 'label' => __('Treinamento'), 'icon' => 'document-arrow-up'],
-        ['route' => 'curation.queue', 'label' => __('Curadoria'), 'icon' => 'clipboard-document-check'],
-        ['route' => 'chat.show', 'label' => __('Chat'), 'icon' => 'chat-bubble-left-right'],
-        ['route' => 'tools.show', 'label' => __('Tools'), 'icon' => 'wrench-screwdriver'],
-    ];
+    // Management tabs are Admin-only; Chat is open to every member.
+    $canManage = \Illuminate\Support\Facades\Gate::allows('update', $agent);
+
+    $tabs = collect([
+        ['route' => 'agents.edit', 'label' => __('Builder'), 'icon' => 'adjustments-horizontal', 'manage' => true],
+        ['route' => 'training.upload', 'label' => __('Treinamento'), 'icon' => 'document-arrow-up', 'manage' => true],
+        ['route' => 'curation.queue', 'label' => __('Curadoria'), 'icon' => 'clipboard-document-check', 'manage' => true],
+        ['route' => 'chat.show', 'label' => __('Chat'), 'icon' => 'chat-bubble-left-right', 'manage' => false],
+        ['route' => 'tools.show', 'label' => __('Tools'), 'icon' => 'wrench-screwdriver', 'manage' => true],
+    ])->filter(fn (array $tab) => ! $tab['manage'] || $canManage);
 @endphp
 
 <nav {{ $attributes->class('mt-4 flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-700') }}>
